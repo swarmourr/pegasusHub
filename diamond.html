@@ -1,0 +1,442 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Pegasus Beginner Training | The Diamond Workflow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #020617; --surface: #0f172a; --border: rgba(148, 163, 184, 0.1);
+            --primary: #22d3ee; --primary-glow: rgba(34, 211, 238, 0.6);
+            --text-main: #f8fafc; --text-muted: #94a3b8; --glass: rgba(15, 23, 42, 0.9);
+        }
+        body.light-mode {
+            --bg: #f8fafc; --surface: #ffffff; --border: #cbd5e1;
+            --primary: #0284c7; --primary-glow: rgba(2, 132, 199, 0.4);
+            --text-main: #0f172a; --text-muted: #475569; --glass: rgba(255, 255, 255, 0.9);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main); min-height: 100vh; line-height: 1.7; font-size: 1.05rem; }
+        nav { height: 75px; padding: 0 8%; background: var(--glass); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .nav-logo { font-weight: 800; font-size: 1.3rem; text-decoration: none; color: var(--text-main); letter-spacing: -1px; }
+        .nav-logo span { color: var(--primary); }
+        .theme-toggle { background: transparent; border: 1px solid var(--border); color: var(--text-muted); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        
+        .container { max-width: 1400px; margin: 60px auto; padding: 0 40px; display: grid; grid-template-columns: 1fr 350px; gap: 60px; }
+        main { min-width: 0; }
+        
+        #wf-content h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -2px; margin-bottom: 10px; line-height: 1.1; }
+        #wf-content h2 { font-size: 1.4rem; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin: 50px 0 20px; border-left: 4px solid var(--primary); padding-left: 15px; }
+        #wf-content h3 { font-size: 1.2rem; margin: 30px 0 15px; color: var(--text-main); font-weight: 600; }
+        #wf-content p { margin-bottom: 20px; color: var(--text-muted); }
+        #wf-content strong { color: var(--text-main); font-weight: 600; }
+        #wf-content hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+        
+        pre { background: #0f172a; border: 1px solid var(--border); padding: 20px; border-radius: 12px; margin: 25px 0; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+        code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+        pre code { color: #cbd5e1; }
+        :not(pre) > code { background: var(--surface); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); color: var(--primary); }
+        
+        #wf-content ul, #wf-content ol { margin-left: 20px; margin-bottom: 20px; color: var(--text-muted); }
+        #wf-content li { margin-bottom: 10px; }
+
+        .viz-terminal { background: #000; border: 1px solid var(--border); border-radius: 16px; margin: 40px 0; overflow: hidden; box-shadow: 0 20px 50px -10px rgba(0,0,0,0.5); }
+        .term-header { background: #0f172a; padding: 12px 20px; border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; }
+        .dot-group { display: flex; gap: 8px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        #viz-target { padding: 40px; display: flex; justify-content: center; background: #050a15; min-height: 300px; }
+        #viz-target svg { width: 100%; height: 100%; max-height: 400px; max-width: 700px; }
+
+        .edge path { stroke: #1e293b !important; stroke-width: 2px !important; opacity: 0.5; fill: none !important; }
+        .bullet { fill: none !important; stroke: #22d3ee !important; stroke-width: 4px !important; stroke-linecap: round; stroke-dasharray: 1, 100; animation: flow 3s linear infinite; filter: drop-shadow(0 0 8px #22d3ee); visibility: visible !important; pointer-events: none; }
+        @keyframes flow { 0% { stroke-dashoffset: 200; } 100% { stroke-dashoffset: 0; } }
+
+        aside { position: sticky; top: 100px; align-self: start; }
+        .sidebar-card { background: var(--surface); border: 1px solid var(--border); padding: 24px; border-radius: 20px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .sidebar-label { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px; display: block; letter-spacing: 1px; }
+        .btn-primary { display: block; width: 100%; padding: 14px; background: var(--primary); color: #000; text-align: center; text-decoration: none; border-radius: 10px; font-weight: 800; font-size: 0.9rem; transition: transform 0.2s, background 0.2s; }
+        .btn-primary:hover { transform: translateY(-2px); background: #67e8f9; }
+        .tree-node { font-family: 'JetBrains Mono'; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .tree-node i { color: var(--primary); }
+        .avatar-stack { display: flex; padding-left: 10px; }
+        .avatar-stack img { width: 36px; height: 36px; border-radius: 50%; border: 3px solid var(--surface); margin-left: -10px; transition: transform 0.2s; cursor: pointer; }
+        .avatar-stack img:hover { transform: translateY(-5px); z-index: 10; }
+        .meta-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; }
+
+        @media (max-width: 1000px) { .container { grid-template-columns: 1fr; } aside { position: static; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="#" class="nav-logo">PEGASUS<span>TRAINING</span></a>
+    <div style="display:flex; gap:20px; align-items:center;">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode"><i class="fas fa-moon"></i></button>
+    </div>
+</nav>
+
+<div class="container">
+    <main>
+        <article id="wf-content">Loading Course Protocol...</article>
+        
+        <div class="viz-terminal" id="viz-box" style="display:none;">
+            <div class="term-header">
+                <div class="dot-group">
+                    <div class="dot" style="background:#ef4444"></div>
+                    <div class="dot" style="background:#eab308"></div>
+                    <div class="dot" style="background:#22c55e"></div>
+                </div>
+                <div id="viz-title" style="font-size:0.7rem; color:#64748b; font-family:'JetBrains Mono'">live_dag_visualization.svg</div>
+            </div>
+            <div id="viz-target"></div>
+        </div>
+    </main>
+
+    <aside>
+        <div class="sidebar-card">
+            <span class="sidebar-label">Source Repository</span>
+            <div id="tree-box" style="margin-bottom:20px;">Loading files...</div>
+            <a href="#" id="gh-link" target="_blank" class="btn-primary">VIEW ON GITHUB</a>
+        </div>
+        <div class="sidebar-card">
+            <span class="sidebar-label">Top Contributors</span>
+            <div class="avatar-stack" id="contrib-stack">Loading...</div>
+        </div>
+        <div class="sidebar-card">
+            <span class="sidebar-label">Environment Requirements</span>
+            <div class="meta-row">
+                <span style="color:var(--text-muted)">Pegasus WMS</span>
+                <strong id="m-ver" style="color:var(--primary)">--</strong>
+            </div>
+            <div class="meta-row" style="margin-bottom:0;">
+                <span style="color:var(--text-muted)">Last Updated</span>
+                <strong id="m-date">--</strong>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<script type="text/markdown" id="source-md">
+---
+github_repo: "https://github.com/pegasus-isi/diamond-workflow"
+pegasus_version: ">= 5.0.0"
+last_verified: "February 2026"
+---
+
+# 💎 The Diamond Workflow
+## A Complete Beginner's Guide to Parallel Computing
+
+Welcome to your first step into high-performance computing! If you are learning the **Pegasus Workflow Management System (WMS)**, the Diamond Workflow is the absolute best place to start. 
+
+Normally, when we write standard computer programs, tasks execute sequentially (Step 1, then Step 2, then Step 3). But in scientific computing, machine learning, and data processing, waiting for tasks one-by-one takes too long. 
+
+If two tasks do not rely on each other's data, **we should run them at the exact same time**. This is called parallel computing.
+
+The Diamond Workflow perfectly demonstrates this concept. It gets its name from its shape:
+1. **The Top (`preprocess`):** A single job takes a starting file and splits the data into two independent pieces.
+2. **The Middle (`findrange`):** Two independent jobs run simultaneously. Each processes one half of the data.
+3. **The Bottom (`analyze`):** A final job waits for the two middle jobs to finish, then merges their results.
+
+Let's build this entire workflow from scratch!
+
+---
+
+## Step 1: Create Your Executable Programs
+
+Before Pegasus can manage your workflow, it needs the actual software programs that will do the math or process the data. We will write three simple Python scripts to act as our "software."
+
+Open your terminal and create a folder for your project:
+
+```bash
+mkdir pegasus-beginner
+cd pegasus-beginner
+mkdir bin
+```
+
+### 1A. The Top Node: `preprocess`
+Create a file named `bin/preprocess` and paste this code. It reads an input file and splits it into two outputs.
+
+```python
+#!/usr/bin/env python3
+import sys
+
+# sys.argv reads the arguments passed by Pegasus
+input_file = sys.argv[1]
+output_1 = sys.argv[2]
+output_2 = sys.argv[3]
+
+# Read the starting data
+with open(input_file, 'r') as f: 
+    data = f.read()
+
+# Write data to two parallel branches
+with open(output_1, 'w') as f1: 
+    f1.write(f"{data} -> Processed for Branch 1")
+
+with open(output_2, 'w') as f2: 
+    f2.write(f"{data} -> Processed for Branch 2")
+```
+
+### 1B. The Middle Nodes: `findrange`
+Create a file named `bin/findrange`. This exact script will be executed twice simultaneously by Pegasus.
+
+```python
+#!/usr/bin/env python3
+import sys
+
+input_file = sys.argv[1]
+output_file = sys.argv[2]
+
+with open(input_file, 'r') as f: 
+    data = f.read()
+
+with open(output_file, 'w') as f: 
+    f.write(f"{data} -> Analyzed by Findrange")
+```
+
+### 1C. The Bottom Node: `analyze`
+Create a file named `bin/analyze`. This script merges the two branches back together.
+
+```python
+#!/usr/bin/env python3
+import sys
+
+# Read the data from both middle jobs
+with open(sys.argv[1], 'r') as f1: data1 = f1.read()
+with open(sys.argv[2], 'r') as f2: data2 = f2.read()
+
+# Merge it into the final output file
+with open(sys.argv[3], 'w') as out:
+    out.write("--- FINAL MERGED RESULT ---\n")
+    out.write(f"Result A: {data1}\n")
+    out.write(f"Result B: {data2}\n")
+```
+
+**Crucial Step:** Your computer needs permission to execute these files! Run this in your terminal:
+
+```bash
+chmod +x bin/preprocess bin/findrange bin/analyze
+```
+
+---
+
+## Step 2: Write the Workflow Blueprint
+
+Now we need to tell Pegasus how these scripts connect to each other. We do this by writing a "Blueprint" using the Pegasus Python API. 
+
+Create a file named `workflow_generator.py` in your main `pegasus-beginner` folder.
+
+```python
+#!/usr/bin/env python3
+import logging
+from pathlib import Path
+from Pegasus.api import *
+
+# Show helpful messages in the console
+logging.basicConfig(level=logging.DEBUG)
+
+# 1. Initialize the Workflow
+wf = Workflow("diamond-beginner")
+
+# 2. Create the Starting File (f.a)
+with open("f.a", "w") as f: 
+    f.write("Starting Point")
+    
+in_file = File("f.a")
+rc = ReplicaCatalog().add_replica("local", in_file, Path(".").resolve() / "f.a")
+wf.add_replica_catalog(rc)
+
+# 3. Define the Executables (Tell Pegasus where our 'bin' tools are)
+preprocess = Transformation("preprocess", site="local", pfn=Path(".").resolve() / "bin/preprocess", is_stageable=True)
+findrange = Transformation("findrange", site="local", pfn=Path(".").resolve() / "bin/findrange", is_stageable=True)
+analyze = Transformation("analyze", site="local", pfn=Path(".").resolve() / "bin/analyze", is_stageable=True)
+
+tc = TransformationCatalog().add_transformations(preprocess, findrange, analyze)
+wf.add_transformation_catalog(tc)
+
+# 4. Connect the Jobs (Build the Diamond shape)
+f_b1 = File("f.b1")
+f_b2 = File("f.b2")
+job_preprocess = Job(preprocess).add_args(in_file, f_b1, f_b2).add_inputs(in_file).add_outputs(f_b1, f_b2)
+
+f_c1 = File("f.c1")
+f_c2 = File("f.c2")
+# Notice how findrange is used twice!
+job_findrange_1 = Job(findrange).add_args(f_b1, f_c1).add_inputs(f_b1).add_outputs(f_c1)
+job_findrange_2 = Job(findrange).add_args(f_b2, f_c2).add_inputs(f_b2).add_outputs(f_c2)
+
+f_d = File("f.d")
+job_analyze = Job(analyze).add_args(f_c1, f_c2, f_d).add_inputs(f_c1, f_c2).add_outputs(f_d)
+
+# Add them all to the workflow
+wf.add_jobs(job_preprocess, job_findrange_1, job_findrange_2, job_analyze)
+
+# 5. Plan and Submit to the computer!
+try:
+    wf.plan(submit=True)
+except PegasusClientError as e:
+    print(e)
+```
+
+---
+
+## Step 3: Run and Monitor!
+
+You are ready! Execute your blueprint script:
+
+```bash
+chmod +x workflow_generator.py
+./workflow_generator.py
+```
+
+Pegasus will plan the execution, handle the data transfers, and run the jobs. It will output a "submit directory path" in your terminal. You can check the progress of your parallel jobs by running:
+
+```bash
+pegasus-status [paste_your_submit_directory_path_here]
+```
+
+When it finishes, look inside your folder for a new file named `f.d`. Open it up, and you will see your merged data! You have officially run your first parallel workflow.
+
+---
+```svg
+<svg viewBox="0 0 200 300" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)">
+  <g class="graph">
+    <ellipse cx="100" cy="40" rx="45" ry="20" fill="#0f172a" stroke="#22d3ee"/>
+    <text x="100" y="45" text-anchor="middle" font-family="monospace" font-size="12" fill="#94a3b8">preprocess</text>
+    
+    <ellipse cx="40" cy="150" rx="40" ry="20" fill="#0f172a" stroke="#22d3ee"/>
+    <text x="40" y="155" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">findrange_1</text>
+    
+    <ellipse cx="160" cy="150" rx="40" ry="20" fill="#0f172a" stroke="#22d3ee"/>
+    <text x="160" y="155" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">findrange_2</text>
+    
+    <ellipse cx="100" cy="260" rx="40" ry="20" fill="#0f172a" stroke="#22d3ee"/>
+    <text x="100" y="265" text-anchor="middle" font-family="monospace" font-size="12" fill="#94a3b8">analyze</text>
+    
+    <g class="edge"><path d="M 85 55 L 50 132"/></g>
+    <g class="edge"><path d="M 115 55 L 150 132"/></g>
+    <g class="edge"><path d="M 50 168 L 85 242"/></g>
+    <g class="edge"><path d="M 150 168 L 115 242"/></g>
+  </g>
+</svg>
+```
+</script>
+
+<script>
+    const md = window.markdownit({ html: true });
+
+    async function init() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-mode');
+            document.querySelector('.theme-toggle i').classList.replace('fa-moon', 'fa-sun');
+        }
+
+        try {
+            const rawContent = document.getElementById('source-md').textContent;
+            const parts = rawContent.split('---');
+            if (parts.length < 3) throw new Error("Invalid Markdown Structure.");
+            
+            const yaml = parts[1];
+            let body = parts.slice(2).join('---');
+
+            const meta = {};
+            yaml.trim().split('\n').forEach(line => {
+                const [key, ...val] = line.split(':');
+                if(key && val.length > 0) meta[key.trim().toLowerCase()] = val.join(':').trim().replace(/['"]/g, '');
+            });
+
+            document.getElementById('m-ver').innerText = meta.pegasus_version || 'N/A';
+            document.getElementById('m-date').innerText = meta.last_verified || 'N/A';
+            
+            if (meta.github_repo) {
+                document.getElementById('gh-link').href = meta.github_repo;
+                if (meta.github_repo.includes('github.com')) {
+                    const urlParts = new URL(meta.github_repo).pathname.split('/').filter(x => x);
+                    if(urlParts.length >= 2) fetchGitHubData(urlParts[0], urlParts[1]);
+                }
+            }
+
+            const codeRegex = /```svg[\s\S]*?\n([\s\S]*?)```/g;
+            let match;
+            while ((match = codeRegex.exec(body)) !== null) {
+                if (match[1].includes('<svg')) {
+                    renderVizTerminal(match[1]); 
+                    body = body.replace(match[0], ''); 
+                    break;
+                }
+            }
+
+            document.getElementById('wf-content').innerHTML = md.render(body);
+
+        } catch (error) {
+            document.getElementById('wf-content').innerHTML = `<h2>Error Loading Content</h2><p>${error.message}</p>`;
+        }
+    }
+
+    function renderVizTerminal(svgData) {
+        const vizBox = document.getElementById('viz-box');
+        const vizTarget = document.getElementById('viz-target');
+        
+        vizBox.style.display = 'block'; 
+        vizTarget.innerHTML = svgData;
+
+        const svgElement = vizTarget.querySelector('svg');
+        if(svgElement) {
+            svgElement.setAttribute('width', '100%');
+            svgElement.setAttribute('height', '100%');
+            
+            vizTarget.querySelectorAll('.edge path').forEach(path => {
+                const bulletPath = path.cloneNode(true);
+                bulletPath.classList.add('bullet');
+                bulletPath.removeAttribute('id');
+                path.parentNode.appendChild(bulletPath);
+            });
+        }
+    }
+
+    async function fetchGitHubData(owner, repo) {
+        try {
+            const r1 = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents`);
+            if (!r1.ok) throw new Error();
+            const files = await r1.json();
+            
+            document.getElementById('tree-box').innerHTML = files.slice(0,6).map(f => 
+                `<div class="tree-node"><i class="fas ${f.type==='dir'?'fa-folder':'fa-file-code'}"></i> ${f.name}</div>`
+            ).join('');
+
+            const r2 = await fetch(`https://api.github.com/repos/${owner}/${repo}/contributors?per_page=5`);
+            if (!r2.ok) throw new Error();
+            const users = await r2.json();
+            
+            document.getElementById('contrib-stack').innerHTML = users.map(u => 
+                `<img src="${u.avatar_url}" title="${u.login}" alt="${u.login}">`
+            ).join('');
+            
+        } catch(error) { 
+            document.getElementById('tree-box').innerHTML = "<span style='color:var(--text-muted);font-size:0.8rem;'>Unavailable.</span>";
+            document.getElementById('contrib-stack').innerHTML = "<span style='color:var(--text-muted);font-size:0.8rem;'>Unavailable.</span>";
+        }
+    }
+
+    function toggleTheme() {
+        const body = document.body;
+        const icon = document.querySelector('.theme-toggle i');
+        body.classList.toggle('light-mode');
+        if(body.classList.contains('light-mode')) {
+            localStorage.setItem('theme', 'light');
+            icon.classList.replace('fa-moon', 'fa-sun');
+        } else {
+            localStorage.setItem('theme', 'dark');
+            icon.classList.replace('fa-sun', 'fa-moon');
+        }
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>

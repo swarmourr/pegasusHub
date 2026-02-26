@@ -1,0 +1,254 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PegasusHub | Workflow Intelligence</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+
+    <style>
+        :root {
+            /* DARK DEFAULT */
+            --bg: #020617; --surface: #0f172a; --border: rgba(148, 163, 184, 0.1);
+            --primary: #22d3ee; --primary-glow: rgba(34, 211, 238, 0.6);
+            --text-main: #f8fafc; --text-muted: #94a3b8;
+            --glass: rgba(15, 23, 42, 0.9);
+        }
+        /* LIGHT OVERRIDES */
+        body.light-mode {
+            --bg: #f8fafc; --surface: #ffffff; --border: #cbd5e1;
+            --primary: #0284c7; --primary-glow: rgba(2, 132, 199, 0.4);
+            --text-main: #0f172a; --text-muted: #475569;
+            --glass: rgba(255, 255, 255, 0.9);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main);
+            min-height: 100vh; line-height: 1.6;
+        }
+
+        nav { height: 75px; padding: 0 8%; background: var(--glass); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .nav-logo { font-weight: 800; font-size: 1.2rem; text-decoration: none; color: var(--text-main); letter-spacing: -1px; }
+        .nav-logo span { color: var(--primary); }
+
+        .theme-toggle { background: transparent; border: 1px solid var(--border); color: var(--text-muted); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .theme-toggle:hover { color: var(--primary); border-color: var(--primary); }
+
+        .container { max-width: 1300px; margin: 60px auto; padding: 0 40px; display: grid; grid-template-columns: 1fr 340px; gap: 60px; }
+
+        /* Typography */
+        #wf-content h1 { font-size: 3rem; font-weight: 800; letter-spacing: -2px; margin-bottom: 10px; }
+        #wf-content h2 { font-size: 1rem; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin: 40px 0 15px; border-left: 3px solid var(--primary); padding-left: 15px; }
+        pre { background: #0f172a; border: 1px solid var(--border); padding: 20px; border-radius: 12px; margin: 25px 0; overflow-x: auto; }
+        code { font-family: 'JetBrains Mono', monospace; color: #cbd5e1; }
+
+        /* VIZ TERMINAL (Always Dark for Aesthetic) */
+        .viz-terminal {
+            background: #000; border: 1px solid var(--border); border-radius: 16px;
+            margin: 40px 0; overflow: hidden; box-shadow: 0 20px 50px -10px rgba(0,0,0,0.5);
+        }
+        .term-header { background: #0f172a; padding: 10px 20px; border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; }
+        .dot-group { display: flex; gap: 6px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: #334155; }
+        #viz-target { padding: 40px; display: flex; justify-content: center; background: #050a15; min-height: 250px; }
+        #viz-target svg { width: 100%; height: auto; max-width: 650px; }
+        #viz-target img { max-width: 100%; border-radius: 8px; border: 1px solid #1e293b; }
+
+        /* Animation */
+        .edge path { stroke: #1e293b !important; stroke-width: 1.5px !important; opacity: 0.5; fill: none !important; }
+        .bullet {
+            fill: none !important; stroke: #22d3ee !important; stroke-width: 4px !important;
+            stroke-linecap: round; stroke-dasharray: 1, 100;
+            animation: flow 3s linear infinite; filter: drop-shadow(0 0 8px #22d3ee);
+            visibility: visible !important; pointer-events: none;
+        }
+        @keyframes flow { 0% { stroke-dashoffset: 200; } 100% { stroke-dashoffset: 0; } }
+
+        /* Sidebar */
+        .sidebar-card { background: var(--surface); border: 1px solid var(--border); padding: 24px; border-radius: 20px; margin-bottom: 24px; }
+        .sidebar-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px; display: block; }
+        .btn-primary { display: block; width: 100%; padding: 14px; background: var(--primary); color: #fff; text-align: center; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 0.85rem; }
+        .tree-node { font-family: 'JetBrains Mono'; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; }
+        .avatar-stack img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--surface); margin-right: -8px; }
+
+        @media (max-width: 1000px) { .container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="nav-logo">PEGASUS<span>HUB</span></a>
+    <div style="display:flex; gap:15px; align-items:center;">
+        <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+        <a href="index.html" style="color:var(--text-muted); text-decoration:none; font-size:0.8rem; font-weight:700;">BACK</a>
+    </div>
+</nav>
+
+<div class="container">
+    <main>
+        <article id="wf-content">Loading Protocol...</article>
+        
+        <div class="viz-terminal" id="viz-box" style="display:none;">
+            <div class="term-header">
+                <div class="dot-group"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                <div id="viz-title" style="font-size:0.65rem; color:#64748b; font-family:'JetBrains Mono'">active_stream</div>
+            </div>
+            <div id="viz-target"></div>
+        </div>
+    </main>
+
+    <aside>
+        <div class="sidebar-card">
+            <span class="sidebar-label">Source</span>
+            <div id="tree-box" style="margin-bottom:20px;">Fetching tree...</div>
+            <a href="#" id="gh-link" target="_blank" class="btn-primary">VIEW REPO</a>
+        </div>
+        <div class="sidebar-card">
+            <span class="sidebar-label">Contributors</span>
+            <div class="avatar-stack" id="contrib-stack"></div>
+        </div>
+        <div class="sidebar-card" style="font-size: 0.8rem;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="color:var(--text-muted)">Version</span><span id="m-ver">--</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--text-muted)">Verified</span><span id="m-date">--</span>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<script>
+    const md = window.markdownit({ html: true });
+
+    async function init() {
+        // 1. Theme Check
+        const saved = localStorage.getItem('theme');
+        if (saved === 'light') {
+            document.body.classList.add('light-mode');
+            document.querySelector('.theme-toggle i').classList.replace('fa-moon', 'fa-sun');
+        }
+
+        // 2. Load Content
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id') || 'diamond-workflow';
+
+        try {
+            const res = await fetch(`workflows/${id}.md`);
+            if (!res.ok) throw new Error("File not found");
+            const raw = await res.text();
+            
+            const parts = raw.split('---');
+            if (parts.length < 3) throw new Error("Invalid Markdown");
+            const yaml = parts[1];
+            let body = parts[2];
+
+            const meta = {};
+            yaml.trim().split('\n').forEach(l => {
+                const [k, ...v] = l.split(':');
+                if(k && v) meta[k.trim().toLowerCase()] = v.join(':').trim().replace(/['"]/g, '');
+            });
+
+            // Populate Info
+            document.getElementById('m-ver').innerText = meta.pegasus_version || '5.0';
+            document.getElementById('m-date').innerText = meta.last_verified || '2026';
+            document.getElementById('gh-link').href = meta.github_repo || '#';
+
+            if (meta.github_repo && meta.github_repo.includes('github.com')) {
+                const p = new URL(meta.github_repo).pathname.split('/').filter(x=>x);
+                fetchGitHub(p[0], p[1]);
+            }
+
+            // Detect Visualization (Code Block OR Image Path)
+            const codeRegex = /```[\s\S]*?\n([\s\S]*?)```/g;
+            let match, foundViz = false;
+            
+            while ((match = codeRegex.exec(body)) !== null) {
+                if (match[1].includes('<svg')) {
+                    renderViz(match[1], 'svg');
+                    body = body.replace(match[0], ''); 
+                    foundViz = true; 
+                    break;
+                }
+            }
+
+            const imgKey = meta.image || meta.png || meta.viz;
+            if (!foundViz && imgKey) renderViz(imgKey, 'png');
+
+            document.getElementById('wf-content').innerHTML = md.render(body);
+
+        } catch (e) {
+            document.getElementById('wf-content').innerHTML = "<h1>Workflow Offline</h1><p>Data unavailable.</p>";
+        }
+    }
+
+    function renderViz(data, type) {
+        const box = document.getElementById('viz-box');
+        const target = document.getElementById('viz-target');
+        box.style.display = 'block';
+        target.innerHTML = '';
+
+        if (type === 'svg') {
+            target.innerHTML = data;
+            const svg = target.querySelector('svg');
+            if(svg) {
+                svg.setAttribute('width', '100%');
+                svg.setAttribute('height', 'auto');
+                // Animation Injection
+                target.querySelectorAll('.edge path').forEach(path => {
+                    const b = path.cloneNode(true);
+                    b.classList.add('bullet');
+                    b.removeAttribute('id');
+                    path.parentNode.appendChild(b);
+                });
+                // Color override for terminal look
+                target.querySelectorAll('text').forEach(t => t.setAttribute('fill', '#94a3b8'));
+                target.querySelectorAll('polygon, ellipse').forEach(p => {
+                    if(p.getAttribute('fill') !== 'transparent') p.setAttribute('fill', '#0f172a');
+                    p.setAttribute('stroke', '#22d3ee');
+                });
+            }
+        } else {
+            const img = document.createElement('img');
+            img.src = data;
+            target.appendChild(img);
+        }
+    }
+
+    async function fetchGitHub(owner, repo) {
+        try {
+            const r1 = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents`);
+            const files = await r1.json();
+            document.getElementById('tree-box').innerHTML = files.slice(0,6).map(f => 
+                `<div class="tree-node"><i class="fas ${f.type==='dir'?'fa-folder':'fa-file'}"></i> ${f.name}</div>`
+            ).join('');
+
+            const r2 = await fetch(`https://api.github.com/repos/${owner}/${repo}/contributors?per_page=5`);
+            const users = await r2.json();
+            document.getElementById('contrib-stack').innerHTML = users.map(u => 
+                `<img src="${u.avatar_url}" title="${u.login}">`
+            ).join('');
+        } catch(e) { console.log("GitHub API Limit or Error"); }
+    }
+
+    function toggleTheme() {
+        const b = document.body;
+        const i = document.querySelector('.theme-toggle i');
+        b.classList.toggle('light-mode');
+        if(b.classList.contains('light-mode')) {
+            localStorage.setItem('theme', 'light');
+            i.classList.replace('fa-moon', 'fa-sun');
+        } else {
+            localStorage.setItem('theme', 'dark');
+            i.classList.replace('fa-sun', 'fa-moon');
+        }
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>

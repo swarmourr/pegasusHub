@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PegasusHub | Scientific Registry</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020617; --surface: #0f172a; --border: rgba(148, 163, 184, 0.1);
+            --primary: #22d3ee; --text-main: #f8fafc; --text-muted: #64748b; --glass: rgba(15, 23, 42, 0.8);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main);
+            background-image: radial-gradient(circle at 50% 0%, rgba(34, 211, 238, 0.08) 0%, transparent 50%);
+            min-height: 100vh; line-height: 1.6;
+        }
+        nav { 
+            height: 75px; padding: 0 8%; background: var(--glass); backdrop-filter: blur(12px); 
+            border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; 
+            align-items: center; position: sticky; top: 0; z-index: 1000; 
+        }
+        .nav-logo { font-weight: 800; font-size: 1.2rem; text-decoration: none; color: #fff; letter-spacing: -1px; }
+        .nav-logo span { color: var(--primary); }
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 0.85rem; transition: 0.3s; }
+        .nav-links a.active { color: var(--primary); }
+        .hero { padding: 120px 20px 60px; text-align: center; }
+        .hero h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800; letter-spacing: -3px; margin-bottom: 15px; }
+        .grid { max-width: 1300px; margin: 0 auto; padding: 40px; display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; }
+        .card { 
+            background: var(--surface); border: 1px solid var(--border); border-radius: 24px; 
+            padding: 40px; cursor: pointer; transition: 0.4s cubic-bezier(0.2, 0, 0, 1);
+            display: flex; flex-direction: column; position: relative; overflow: hidden;
+        }
+        .card:hover { border-color: var(--primary); transform: translateY(-8px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); }
+        .card-tag { font-size: 0.65rem; font-weight: 800; color: var(--primary); letter-spacing: 2px; margin-bottom: 20px; text-transform: uppercase; }
+        .card h3 { font-size: 1.6rem; margin-bottom: 15px; letter-spacing: -0.5px; }
+        .card p { color: var(--text-muted); font-size: 0.95rem; flex-grow: 1; margin-bottom: 30px; }
+        .btn-contribute { background: var(--primary); color: #020617; padding: 10px 20px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="nav-logo">PEGASUS<span>HUB</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">SCIENTIFIC</a></li>
+            <li><a href="training.html">TRAINING</a></li>
+        </ul>
+        <a href="https://github.com/pegasus-isi" class="btn-contribute">CONTRIBUTE</a>
+    </nav>
+    <header class="hero">
+        <h1>Research Intelligence</h1>
+        <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">High-performance computational pipelines powering modern scientific discovery.</p>
+    </header>
+    <div class="grid" id="scientific-grid"></div>
+
+    <script>
+        const workflows = [
+    {id: "orcasound", name: "Orcasound", topic: "Bioacoustics", desc: "Marine signal detection workflow integrated with GitHub Actions for bioacoustic analysis.", date: "Dec 2025" },
+    { id: "somospie", name: "SOMOSPIE", topic: "Machine Learning", desc: "Soil Moisture Spatial Inference Engine for processing coarse-grained soil moisture data.", date: "Dec 2025" },
+    { id: "montage-v3", name: "Montage v3", topic: "Astronomy", desc: "Massive scale image mosaic toolkit for background-corrected space exploration.", date: "Aug 2025" },
+    { id: "1000genomes", name: "1000Genomes", topic: "Genomics", desc: "Identifies mutational overlaps using 1000 Genomes project data in a scientific workflow.", date: "Aug 2025" },
+    { id: "lung-seg", name: "Lung-Seg", topic: "Medical AI", desc: "Instance segmentation with U-Net/Mask R-CNN using Keras and Ray Tune for optimization.", date: "Aug 2025" },
+    { id: "compare-llm", name: "Compare-LLM", topic: "Machine Learning", desc: "Workflow designed to compare large language model results across varying parameters.", date: "May 2024" },
+    { id: "rosetta", name: "Rosetta", topic: "Bioinformatics", desc: "De novo protein structure prediction running at scale on the Open Science Grid.", date: "May 2023" },
+    { id: "freesurfer", name: "FreeSurfer", topic: "Brain Imaging", desc: "Neuroimaging analysis pipeline for processing brain surface data on grid infrastructure.", date: "Apr 2023" },
+    { id: "hierarchical-wf", name: "Hierarchical-WF", topic: "Architecture", desc: "Sample demonstrating hierarchical workflow structures and nested execution patterns.", date: "Jan 2023" },
+    { id: "variant-calling", name: "Variant-Calling", topic: "Genomics", desc: "Automating variant calling for genomic data wrangling and mutation identification.", date: "Nov 2022" },
+    { id: "mask-detection", name: "Mask-Detection", topic: "Computer Vision", desc: "Classification with FastRCNN model using PyTorch and Optuna for hyper-parameters.", date: "Mar 2022" },
+    { id:"fb-nlp", name:"FB-NLP", topic:"Machine Learning", desc:"Pegasus-enabled implementation of Facebook NLP processing pipelines.", date:"Nov 2020"},
+    { id:"sra-search", name:"SRA-Search", topic:"Bioinformatics", desc:"Downloads and aligns SRA data using SRA Toolkit and Bowtie2 in a Pegasus pipeline.", date:"Jul 2020"}
+]
+;
+        const grid = document.getElementById('scientific-grid');
+        workflows.forEach(w => {
+            grid.innerHTML += `
+                <div class="card" onclick="location.href='details.html?id=${w.id}'">
+                    <span class="card-tag">${w.topic}</span>
+                    <h3>${w.name}</h3>
+                    <p>${w.desc}</p>
+                    <div style="font-size: 0.75rem; font-weight: 700; color:var(--primary)">ANALYZE PROTOCOL <i class="fas fa-arrow-right"></i></div>
+                </div>`;
+        });
+    </script>
+</body>
+</html>

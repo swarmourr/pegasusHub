@@ -1,0 +1,300 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PegasusHub | Scientific Registry</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* DARK THEME (Default) */
+            --bg: #355872;
+            --surface: rgba(30, 41, 59, 0.4);
+            --border: rgba(148, 163, 184, 0.1);
+            --primary: #22d3ee;
+            --primary-glow: rgba(34, 211, 238, 0.2);
+            --secondary: #9CD5FF;
+            --secondary-glow: rgba(129, 140, 248, 0.2);
+            --text-main: #ffffff;
+            --text-muted: #9CD5FF;
+            --glass: rgba(2, 6, 23, 0.8);
+            --grad: radial-gradient(circle at 50% -20%, rgba(129, 140, 248, 0.15) 0%, transparent 50%);
+        }
+
+        /* LIGHT THEME OVERRIDES */
+        body.light-mode {
+            --bg: #f8fafc;
+            --surface: rgba(255, 255, 255, 0.7);
+            --border: #e2e8f0;
+            --primary: #0284c7;
+            --primary-glow: rgba(2, 132, 199, 0.1);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --glass: rgba(255, 255, 255, 0.8);
+            --grad: radial-gradient(circle at 50% -20%, rgba(2, 132, 199, 0.08) 0%, transparent 60%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s; }
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg); 
+            color: var(--text-main);
+            background-image: var(--grad);
+            background-attachment: fixed;
+            min-height: 100vh; 
+            line-height: 1.6;
+        }
+
+        /* --- NAV --- */
+        nav { 
+            height: 80px; padding: 0 8%; 
+            background: var(--glass); 
+            backdrop-filter: blur(16px); 
+            border-bottom: 1px solid var(--border); 
+            display: flex; justify-content: space-between; 
+            align-items: center; 
+            position: sticky; top: 0; z-index: 1000; 
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 40px; }
+        .nav-logo { font-weight: 800; font-size: 1.3rem; text-decoration: none; color: var(--text-main); letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
+        .nav-logo i { color: var(--primary); }
+        .nav-logo span { color: var(--primary); }
+
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 0.9rem; position: relative; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-main); }
+        .nav-links a.active::after { content: ''; position: absolute; bottom: -28px; left: 0; width: 100%; height: 3px; background: var(--primary); border-radius: 4px 4px 0 0; }
+
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        
+        .theme-toggle {
+            background: var(--surface); border: 1px solid var(--border); color: var(--text-muted);
+            width: 42px; height: 42px; border-radius: 12px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .theme-toggle:hover { color: var(--primary); border-color: var(--primary); }
+
+        .btn-contribute { 
+            background: var(--text-main); color: var(--bg); padding: 12px 24px; 
+            border-radius: 12px; font-weight: 700; text-decoration: none; 
+            font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-contribute:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px var(--primary-glow); }
+
+        /* --- HERO --- */
+        .hero { padding: 100px 20px 40px; text-align: center; position: relative; }
+        .hero h1 { 
+            font-size: clamp(3rem, 6vw, 5rem); font-weight: 800; letter-spacing: -3px; margin-bottom: 20px; 
+            background: linear-gradient(to right, var(--text-main), var(--text-muted)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero p { color: var(--text-muted); max-width: 600px; margin: 0 auto 40px; font-size: 1.2rem; }
+
+        /* Search Bar */
+        .search-container {
+            max-width: 500px; margin: 0 auto 60px; position: relative;
+        }
+        .search-input {
+            width: 100%; padding: 18px 24px 18px 50px;
+            border-radius: 16px; border: 1px solid var(--border);
+            background: var(--surface); backdrop-filter: blur(10px);
+            color: var(--text-main); font-size: 1rem; font-family: inherit;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+            outline: none; transition: 0.3s;
+        }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
+        .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        /* Stats Ribbon */
+        .stats-row {
+            display: flex; justify-content: center; gap: 60px; flex-wrap: wrap;
+            padding: 30px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+            margin-bottom: 60px; background: rgba(0,0,0,0.02);
+        }
+        .stat-item { text-align: center; }
+        .stat-num { font-size: 2rem; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 5px; }
+        .stat-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- GRID --- */
+        .grid { max-width: 1400px; margin: 0 auto; padding: 0 40px 100px; display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 30px; }
+
+        .card { 
+            background: var(--surface); border: 1px solid var(--border); border-radius: 24px; 
+            padding: 35px; cursor: pointer; transition: 0.4s cubic-bezier(0.2, 0, 0, 1);
+            display: flex; flex-direction: column; position: relative; overflow: hidden;
+            backdrop-filter: blur(12px); opacity: 0; animation: fade-up 0.6s forwards;
+        }
+        .card:hover { 
+            border-color: var(--primary); transform: translateY(-8px); 
+            box-shadow: 0 20px 50px -10px var(--primary-glow); 
+        }
+        
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .topic-badge { 
+            font-size: 0.7rem; font-weight: 800; color: var(--primary); 
+            background: var(--primary-glow); padding: 6px 12px; border-radius: 20px;
+            letter-spacing: 1px; text-transform: uppercase;
+        }
+        .card-icon { font-size: 1.5rem; color: var(--text-muted); opacity: 0.5; }
+
+        .card h3 { font-size: 1.5rem; margin-bottom: 12px; letter-spacing: -0.5px; color: var(--text-main); }
+        .card p { color: var(--text-muted); font-size: 0.95rem; flex-grow: 1; margin-bottom: 30px; line-height: 1.7; }
+
+        .card-footer { 
+            border-top: 1px solid var(--border); padding-top: 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            font-size: 0.8rem; font-weight: 700; color: var(--text-muted);
+        }
+        .card:hover .card-footer { color: var(--primary); }
+        .arrow-btn { transition: 0.3s; transform: translateX(0); }
+        .card:hover .arrow-btn { transform: translateX(5px); }
+
+        /* Animation Keyframes */
+        @keyframes fade-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Footer */
+        footer { border-top: 1px solid var(--border); padding: 60px 0; text-align: center; color: var(--text-muted); font-size: 0.9rem; }
+        .footer-links { display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; }
+        .footer-links a { color: var(--text-muted); text-decoration: none; transition: 0.2s; }
+        .footer-links a:hover { color: var(--primary); }
+
+        @media (max-width: 768px) { .hero h1 { font-size: 3rem; } .stats-row { gap: 30px; } }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-left">
+            <a href="index.html" class="nav-logo"><i class="fas fa-layer-group"></i> PEGASUS<span>HUB</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">REGISTRY</a></li>
+                <li><a href="training.html">ACADEMY</a></li>
+            </ul>
+        </div>
+        <div class="nav-right">
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
+                <i class="fas fa-moon"></i>
+            </button>
+            <a href="https://github.com/pegasus-isi" class="btn-contribute" target="_blank">
+                <i class="fab fa-github"></i> <span>Submit</span>
+            </a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1>Workflow Intelligence</h1>
+        <p>A curated registry of high-performance computational pipelines for modern science. Verified. Optimized. Ready to deploy.</p>
+        
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" id="searchBar" placeholder="Search for genomics, astronomy, AI..." onkeyup="filterGrid()">
+        </div>
+    </header>
+
+    <div class="stats-row">
+        <div class="stat-item"><div class="stat-num">150+</div><div class="stat-label">Verified Workflows</div></div>
+        <div class="stat-item"><div class="stat-num">12TB</div><div class="stat-label">Data Processed</div></div>
+        <div class="stat-item"><div class="stat-num">2.4k</div><div class="stat-label">Contributors</div></div>
+    </div>
+
+    <div class="grid" id="scientific-grid"></div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#">Documentation</a>
+            <a href="#">API</a>
+            <a href="#">Privacy</a>
+            <a href="https://pegasus.isi.edu">Pegasus WMS</a>
+        </div>
+        <p>&copy; 2026 PegasusHub Registry. Maintained by the ISI Science Automation Technologies.</p>
+    </footer>
+
+    <script>
+        // --- DATA ---
+        const workflows = [
+    {id: "orcasound", name: "Orcasound", topic: "Bioacoustics", desc: "Marine signal detection workflow integrated with GitHub Actions for bioacoustic analysis.", date: "Dec 2025" },
+    { id: "somospie", name: "SOMOSPIE", topic: "Machine Learning", desc: "Soil Moisture Spatial Inference Engine for processing coarse-grained soil moisture data.", date: "Dec 2025" },
+    { id: "montage-v3", name: "Montage v3", topic: "Astronomy", desc: "Massive scale image mosaic toolkit for background-corrected space exploration.", date: "Aug 2025" },
+    { id: "1000genomes", name: "1000Genomes", topic: "Genomics", desc: "Identifies mutational overlaps using 1000 Genomes project data in a scientific workflow.", date: "Aug 2025" },
+    { id: "lung-seg", name: "Lung-Seg", topic: "Medical AI", desc: "Instance segmentation with U-Net/Mask R-CNN using Keras and Ray Tune for optimization.", date: "Aug 2025" },
+    { id: "compare-llm", name: "Compare-LLM", topic: "Machine Learning", desc: "Workflow designed to compare large language model results across varying parameters.", date: "May 2024" },
+    { id: "rosetta", name: "Rosetta", topic: "Bioinformatics", desc: "De novo protein structure prediction running at scale on the Open Science Grid.", date: "May 2023" },
+    { id: "freesurfer", name: "FreeSurfer", topic: "Brain Imaging", desc: "Neuroimaging analysis pipeline for processing brain surface data on grid infrastructure.", date: "Apr 2023" },
+    { id: "hierarchical-wf", name: "Hierarchical-WF", topic: "Architecture", desc: "Sample demonstrating hierarchical workflow structures and nested execution patterns.", date: "Jan 2023" },
+    { id: "variant-calling", name: "Variant-Calling", topic: "Genomics", desc: "Automating variant calling for genomic data wrangling and mutation identification.", date: "Nov 2022" },
+    { id: "mask-detection", name: "Mask-Detection", topic: "Computer Vision", desc: "Classification with FastRCNN model using PyTorch and Optuna for hyper-parameters.", date: "Mar 2022" },
+    { id:"fb-nlp", name:"FB-NLP", topic:"Machine Learning", desc:"Pegasus-enabled implementation of Facebook NLP processing pipelines.", date:"Nov 2020"},
+    { id:"sra-search", name:"SRA-Search", topic:"Bioinformatics", desc:"Downloads and aligns SRA data using SRA Toolkit and Bowtie2 in a Pegasus pipeline.", date:"Jul 2020"}
+]
+
+        // --- RENDER ---
+        const grid = document.getElementById('scientific-grid');
+        
+        function renderWorkflows(data) {
+            grid.innerHTML = '';
+            data.forEach((w, index) => {
+                grid.innerHTML += `
+                    <div class="card" onclick="location.href='details.html?id=${w.id}'" style="animation-delay: ${index * 0.1}s">
+                        <div class="card-top">
+                            <span class="topic-badge">${w.topic}</span>
+                            <i class="fas ${w.icon} card-icon"></i>
+                        </div>
+                        <h3>${w.name}</h3>
+                        <p>${w.desc}</p>
+                        <div class="card-footer">
+                            <span>VIEW PROTOCOL</span>
+                            <i class="fas fa-arrow-right arrow-btn"></i>
+                        </div>
+                    </div>`;
+            });
+        }
+        
+        // Initial Render
+        renderWorkflows(workflows);
+
+        // --- SEARCH LOGIC ---
+        function filterGrid() {
+            const query = document.getElementById('searchBar').value.toLowerCase();
+            const filtered = workflows.filter(w => 
+                w.name.toLowerCase().includes(query) || 
+                w.topic.toLowerCase().includes(query) ||
+                w.desc.toLowerCase().includes(query)
+            );
+            renderWorkflows(filtered);
+        }
+
+        // --- THEME LOGIC ---
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.querySelector('.theme-toggle i');
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                localStorage.setItem('theme', 'light');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                localStorage.setItem('theme', 'dark');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+
+        // Init Theme
+        (function initTheme() {
+            const saved = localStorage.getItem('theme');
+            const icon = document.querySelector('.theme-toggle i');
+            if (saved === 'light') {
+                document.body.classList.add('light-mode');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        })();
+    </script>
+</body>
+</html>
