@@ -173,6 +173,19 @@
         .meta-row .val { font-weight:700; color:var(--text-main); font-family:'JetBrains Mono'; font-size:0.78rem; }
 
         @media(max-width:960px){ .layout{grid-template-columns:1fr;} .sidebar{position:static;} .hero-title{font-size:2rem;} }
+
+        /* --- TOC --- */
+        .toc-link { display:block; font-size:0.78rem; color:var(--text-muted); text-decoration:none; padding:5px 0; border-left:2px solid var(--border); padding-left:12px; transition:all 0.2s; }
+        .toc-link:hover, .toc-link.active { color:var(--primary); border-left-color:var(--primary); }
+        .toc-link.toc-h3 { padding-left:24px; font-size:0.73rem; }
+
+        /* --- Back to Top --- */
+        #back-top { position:fixed; bottom:32px; right:32px; width:40px; height:40px; border-radius:50%; background:var(--primary); color:#000; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.9rem; opacity:0; transform:translateY(10px); transition:all 0.3s; z-index:999; box-shadow:0 4px 20px rgba(0,0,0,0.2); }
+        #back-top.visible { opacity:1; transform:translateY(0); }
+
+        /* --- Page Transition --- */
+        body { animation: pageFadeIn 0.4s ease forwards; }
+        @keyframes pageFadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
     </style>
 </head>
 <body>
@@ -227,6 +240,12 @@
     </main>
 
     <aside class="sidebar">
+        <!-- TOC card -->
+        <div class="s-card" id="toc-card" style="display:none;">
+            <div class="s-card-header"><i class="fas fa-list"></i><span>Contents</span></div>
+            <div class="s-card-body" id="toc-body"></div>
+        </div>
+
         <!-- Repo card -->
         <div class="s-card">
             <div class="s-card-header"><i class="fab fa-github"></i><span>Repository</span></div>
@@ -279,12 +298,15 @@
     </aside>
 </div>
 
+<button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-arrow-up"></i></button>
+
 <script>
     const md = window.markdownit({ html: true });
 
     window.addEventListener('scroll', () => {
         const d = document.documentElement;
         document.getElementById('progress-bar').style.width = (d.scrollTop / (d.scrollHeight - d.clientHeight) * 100) + '%';
+        document.getElementById('back-top').classList.toggle('visible', window.scrollY > 400);
     });
 
     function styleCodeBlocks(container) {
@@ -421,10 +443,59 @@
             styleCodeBlocks(wfEl);
             olToCards(wfEl);
 
+            // ── Reading Time ──
+            const wordCount = wfEl.innerText.trim().split(/\s+/).filter(Boolean).length;
+            const readMins = Math.ceil(wordCount / 200);
+            const badgesEl = document.getElementById('hero-badges');
+            const readBadge = document.createElement('span');
+            readBadge.className = 'badge badge-date';
+            readBadge.innerHTML = `<i class="fas fa-clock"></i> ${readMins} min read`;
+            badgesEl.appendChild(readBadge);
+
+            // ── Table of Contents ──
+            buildTOC();
+
         } catch (e) {
-            document.getElementById('hero-title').textContent = 'Workflow Offline';
-            document.getElementById('wf-content').innerHTML = '<p>This workflow could not be loaded. It may have moved or is temporarily unavailable.</p>';
+            document.getElementById('hero-title').textContent = 'Workflow Not Found';
+            document.getElementById('hero-desc-block').style.display = 'block';
+            document.getElementById('hero-desc').textContent = 'This workflow could not be loaded. It may have been moved or is temporarily unavailable.';
+            document.getElementById('wf-content').innerHTML = `
+                <div style="text-align:center; padding:60px 0;">
+                    <i class="fas fa-unlink" style="font-size:3rem; color:var(--text-dim); margin-bottom:20px; display:block;"></i>
+                    <h2 style="font-size:1.2rem; margin-bottom:12px;">Unable to load workflow</h2>
+                    <p style="color:var(--text-muted); margin-bottom:28px;">The file may have moved or GitHub is temporarily unavailable.</p>
+                    <a href="registry.html" style="display:inline-flex; align-items:center; gap:8px; background:var(--primary); color:#000; padding:12px 24px; border-radius:10px; font-weight:800; text-decoration:none; font-size:0.85rem;">
+                        <i class="fas fa-arrow-left"></i> Back to Registry
+                    </a>
+                </div>`;
         }
+    }
+
+    function buildTOC() {
+        const headings = document.querySelectorAll('#wf-content h2, #wf-content h3');
+        if (!headings.length) return;
+        const toc = document.getElementById('toc-body');
+        const card = document.getElementById('toc-card');
+        card.style.display = 'block';
+        headings.forEach((h, i) => {
+            h.id = 'section-' + i;
+            const a = document.createElement('a');
+            a.href = '#section-' + i;
+            a.className = 'toc-link' + (h.tagName === 'H3' ? ' toc-h3' : '');
+            a.textContent = h.textContent;
+            toc.appendChild(a);
+        });
+        // IntersectionObserver for active state
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    document.querySelectorAll('.toc-link').forEach(l => l.classList.remove('active'));
+                    const link = toc.querySelector(`a[href="#${e.target.id}"]`);
+                    if (link) link.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-20% 0px -70% 0px' });
+        headings.forEach(h => observer.observe(h));
     }
 
 
@@ -441,7 +512,18 @@
             document.getElementById('contrib-stack').innerHTML = users.map(u =>
                 `<img src="${u.avatar_url}" title="${u.login}" alt="${u.login}">`
             ).join('');
-        } catch (e) { console.log('GitHub API limit or error'); }
+        } catch (e) {
+            document.getElementById('tree-box').innerHTML = `
+                <div style="text-align:center; padding:12px 0; color:var(--text-dim); font-size:0.78rem;">
+                    <i class="fas fa-clock" style="margin-bottom:6px; display:block; font-size:1.2rem;"></i>
+                    Data not available currently.
+                </div>`;
+            document.getElementById('contrib-stack').innerHTML = `
+                <div style="text-align:center; padding:12px 0; color:var(--text-dim); font-size:0.78rem;">
+                    <i class="fas fa-clock" style="margin-bottom:6px; display:block; font-size:1.2rem;"></i>
+                    Data not available currently.
+                </div>`;
+        }
     }
 
     function toggleTheme() {

@@ -300,6 +300,14 @@
 
         /* content-box overall spacing */
         .content-box { padding: 48px !important; }
+
+        /* --- Back to Top --- */
+        #back-top { position:fixed; bottom:32px; right:32px; width:40px; height:40px; border-radius:50%; background:var(--primary); color:#000; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.9rem; opacity:0; transform:translateY(10px); transition:all 0.3s; z-index:999; box-shadow:0 4px 20px rgba(0,0,0,0.2); }
+        #back-top.visible { opacity:1; transform:translateY(0); }
+
+        /* --- Page Transition --- */
+        body { animation: pageFadeIn 0.4s ease forwards; }
+        @keyframes pageFadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
     </style>
 </head>
 <body>
@@ -588,6 +596,13 @@
                 tocItems.forEach((t, i) => t.classList.toggle('active', i === current));
             }, { passive: true });
         }
+
+        // --- BACK TO TOP ---
+        window.addEventListener('scroll', () => {
+            document.getElementById('back-top').classList.toggle('visible', window.scrollY > 400);
+        });
     </script>
+
+    <button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-arrow-up"></i></button>
 </body>
 </html>

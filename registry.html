@@ -165,29 +165,33 @@
         .filter-tag.all.active { background: var(--primary-glow); color: var(--primary); border-color: var(--primary); opacity:1; }
 
         /* --- GRID --- */
-        .grid { max-width: 1400px; margin: 0 auto; padding: 0 40px 100px; display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 30px; }
+        .grid { max-width: 1400px; margin: 0 auto; padding: 0 40px 80px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
 
-        .card { 
-            background: var(--surface); border: 1px solid var(--border); border-radius: 24px; 
-            padding: 35px; cursor: pointer; transition: 0.4s cubic-bezier(0.2, 0, 0, 1);
+        .card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+            padding: 22px; cursor: pointer; transition: 0.4s cubic-bezier(0.2, 0, 0, 1);
             display: flex; flex-direction: column; position: relative; overflow: hidden;
             backdrop-filter: blur(12px); opacity: 0; animation: fade-up 0.6s forwards;
         }
-        .card:hover { 
-            border-color: var(--primary); transform: translateY(-8px); 
-            box-shadow: 0 20px 50px -10px var(--primary-glow); 
+        .card:hover {
+            border-color: var(--primary); transform: translateY(-5px);
+            box-shadow: 0 16px 40px -10px var(--primary-glow);
         }
-        
-        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .card-icon { font-size: 1.5rem; color: var(--text-muted); opacity: 0.5; }
 
-        .card h3 { font-size: 1.5rem; margin-bottom: 12px; letter-spacing: -0.5px; color: var(--text-main); }
-        .card p { color: var(--text-muted); font-size: 0.95rem; flex-grow: 1; margin-bottom: 30px; line-height: 1.7; }
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .card-icon { font-size: 1.2rem; color: var(--text-muted); opacity: 0.4; }
 
-        .card-footer { 
-            border-top: 1px solid var(--border); padding-top: 20px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            font-size: 0.8rem; font-weight: 700; color: var(--text-muted);
+        .card h3 { font-size: 1.15rem; margin-bottom: 8px; letter-spacing: -0.3px; color: var(--text-main); }
+        .card p { color: var(--text-muted); font-size: 0.88rem; flex-grow: 1; margin-bottom: 14px; line-height: 1.65; }
+
+        .card-meta { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+        .card-meta-item { display:inline-flex; align-items:center; gap:5px; font-size:0.72rem; color:var(--text-dim); font-weight:600; }
+        .card-meta-item i { color:var(--primary); font-size:0.65rem; }
+
+        .card-footer {
+            border-top: 1px solid var(--border); padding-top: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.78rem; font-weight: 700; color: var(--text-muted);
         }
         .card:hover .card-footer { color: var(--primary); }
         .arrow-btn { transition: 0.3s; transform: translateX(0); }
@@ -212,6 +216,25 @@
         .footer-links { display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; }
         .footer-links a { color: var(--text-muted); text-decoration: none; transition: 0.2s; }
         .footer-links a:hover { color: var(--primary); }
+
+        /* --- Empty State --- */
+        .empty-state { grid-column: 1 / -1; text-align: center; padding: 80px 40px; color: var(--text-muted); }
+        .empty-state i { font-size: 3rem; margin-bottom: 20px; display: block; opacity: 0.4; }
+        .empty-state h3 { font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
+        .empty-state p { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 24px; }
+        .btn-clear-filter { display: inline-flex; align-items: center; gap: 8px; background: var(--primary-glow); color: var(--primary); border: 1px solid var(--primary); padding: 10px 22px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer; transition: 0.2s; letter-spacing: 0.5px; }
+        .btn-clear-filter:hover { background: var(--primary); color: #000; }
+
+        /* --- Workflow Count Badge --- */
+        #wf-count { text-align: center; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); margin-top: 10px; margin-bottom: 0; letter-spacing: 0.3px; }
+
+        /* --- Back to Top --- */
+        #back-top { position:fixed; bottom:32px; right:32px; width:40px; height:40px; border-radius:50%; background:var(--primary); color:#000; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.9rem; opacity:0; transform:translateY(10px); transition:all 0.3s; z-index:999; box-shadow:0 4px 20px rgba(0,0,0,0.2); }
+        #back-top.visible { opacity:1; transform:translateY(0); }
+
+        /* --- Page Transition --- */
+        body { animation: pageFadeIn 0.4s ease forwards; }
+        @keyframes pageFadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 
     </style>
 </head>
@@ -272,6 +295,7 @@
         <div class="search-container">
             <i class="fas fa-search search-icon"></i>
             <input type="text" class="search-input" id="searchBar" placeholder="Search for genomics, astronomy, AI..." onkeyup="filterGrid()">
+            <div id="wf-count"></div>
         </div>
     </div>
 
@@ -287,6 +311,8 @@
         </div>
         <p>&copy; 2026 PegasusHub Registry. Maintained by the pegasus-wms team · ISI-USC.</p>
     </footer>
+
+    <button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-arrow-up"></i></button>
 
     <script>
         const WORKFLOWS_INDEX = 'https://raw.githubusercontent.com/swarmourr/Pegasus-Hub/refs/heads/main/data/workflows.json';
@@ -318,10 +344,29 @@
             filterGrid();
         }
 
+        function updateCount(shown) {
+            const total = allWorkflows.length;
+            const el = document.getElementById('wf-count');
+            if (!el) return;
+            if (total === 0) { el.textContent = ''; return; }
+            if (shown === total) {
+                el.textContent = `${total} workflow${total !== 1 ? 's' : ''}`;
+            } else {
+                el.textContent = `Showing ${shown} of ${total} workflows`;
+            }
+        }
+
         function renderWorkflows(data) {
             grid.innerHTML = '';
+            updateCount(data.length);
             if (!data.length) {
-                grid.innerHTML = '<p style="color:var(--text-muted);padding:40px;grid-column:1/-1;text-align:center;">No workflows found.</p>';
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>No workflows found</h3>
+                        <p>Try a different search or clear the filter</p>
+                        <button class="btn-clear-filter" onclick="clearFilters()"><i class="fas fa-times-circle"></i> Clear filters</button>
+                    </div>`;
                 return;
             }
             data.forEach((w, i) => {
@@ -330,25 +375,49 @@
                     `<span class="tag tag-${j % 7}"><i class="fas fa-tag"></i>${t}</span>`
                 ).join('');
 
+                const desc = w.description || 'A scientific workflow blueprint ready to adapt for your computational research needs.';
+
+                let repoName = '';
+                if (w.github_repo && w.github_repo.includes('github.com')) {
+                    try { repoName = new URL(w.github_repo).pathname.split('/').filter(Boolean).slice(0,2).join('/'); } catch(e) {}
+                }
+
+                const metaHtml = `
+                    <div class="card-meta">
+                        ${w.pegasus_version ? `<span class="card-meta-item"><i class="fas fa-code-branch"></i> v${w.pegasus_version}</span>` : ''}
+                        ${w.last_verified   ? `<span class="card-meta-item"><i class="fas fa-calendar-check"></i> ${w.last_verified}</span>` : ''}
+                        ${repoName          ? `<span class="card-meta-item"><i class="fab fa-github"></i> ${repoName}</span>` : ''}
+                    </div>`;
+
                 grid.innerHTML += `
                     <div class="card" onclick="location.href='details.html?id=${w.id}'" style="animation-delay:${i*0.07}s">
                         <div class="card-top">
                             <div class="card-tags">${tagsHtml}</div>
-                            <i class="fas fa-book-atlas card-icon"></i>
+                            <i class="fas fa-diagram-project card-icon"></i>
                         </div>
                         <h3>${w.name}</h3>
-                        <p>${w.description || ''}</p>
+                        <p>${desc}</p>
+                        ${metaHtml}
                         <div class="card-footer">
-                            <span>${w.last_verified || ''}</span>
+                            <span>View workflow</span>
                             <i class="fas fa-arrow-right arrow-btn"></i>
                         </div>
                     </div>`;
             });
         }
 
+        function clearFilters() {
+            document.getElementById('searchBar').value = '';
+            activeTag = 'all';
+            document.querySelectorAll('.filter-tag').forEach(f => f.classList.remove('active'));
+            const allTag = document.querySelector('.filter-tag.all');
+            if (allTag) allTag.classList.add('active');
+            renderWorkflows(allWorkflows);
+        }
+
         function filterGrid() {
             const q = document.getElementById('searchBar').value.toLowerCase();
-            renderWorkflows(allWorkflows.filter(w => {
+            const filtered = allWorkflows.filter(w => {
                 const matchSearch = !q ||
                     (w.name        || '').toLowerCase().includes(q) ||
                     (w.topic       || '').toLowerCase().includes(q) ||
@@ -356,7 +425,8 @@
                 const matchTag = activeTag === 'all' ||
                     (w.topic || '').split(/[,;]/).map(t => t.trim()).includes(activeTag);
                 return matchSearch && matchTag;
-            }));
+            });
+            renderWorkflows(filtered);
         }
 
         async function loadWorkflows() {
@@ -373,6 +443,11 @@
         }
 
         loadWorkflows();
+
+        // --- BACK TO TOP ---
+        window.addEventListener('scroll', () => {
+            document.getElementById('back-top').classList.toggle('visible', window.scrollY > 400);
+        });
 
         // --- THEME LOGIC ---
         function toggleTheme() {
