@@ -525,115 +525,11 @@
             <a href="#">Privacy</a>
             <a href="https://pegasus.isi.edu" target="_blank">Pegasus WMS</a>
         </div>
-        <p>&copy; 2026 PegasusHub Registry. Maintained by the ISI Science Automation Technologies.</p>
+        <p>&copy; 2026 PegasusHub Registry. Maintained by the pegasus-wms team · ISI-USC.</p>
     </footer>
 
     <script>
-        // --- DATA (Hardcoded for direct local usage) ---
-
-        const videos = [
-            { id: "MNN80OHMQUQ", title: "Pegasus in 5 Minutes", duration: "05:00", desc: "Understanding the fundamentals of distributed computing on AWS and Clouds.", thumb: "http://i3.ytimg.com/vi/MNN80OHMQUQ/hqdefault.jpg" },
-            { id: "TYWAyfceBZ4", title: "Scaling Al Science with ACCESS Pegasus", duration: "25:27", desc: "A complete walkthrough of the Pegasus Workflow Management System concepts.", thumb: "http://i3.ytimg.com/vi/TYWAyfceBZ4/hqdefault.jpg" },
-            { id: "2NOreG8SS6E", title: "OSG Training: Workflows with Pegasus", duration: "01:17:00", desc: "Covers basic principles of using the Pegasus Workflow Management System to manage workflows in the OSPool.", thumb: "https://img.youtube.com/vi/2NOreG8SS6E/maxresdefault.jpg" },
-        ];
-
-        // ACCESS TUTORIALS
-        const accessTutorials = [
-    { 
-        id: "tut-01", 
-        title: "01: Quickstart", 
-        desc: "Your first abstract-to-executable workflow without worrying about underlying environments.", 
-        level: "beginner", 
-        time: "15 min", 
-        icon: "fa-rocket", 
-        url: "lesson.html?title=01:%20Quickstart&notebook=pegasus-isi/ACCESS-Pegasus-Examples/blob/main/01-Quickstart/01-Quickstart-API.ipynb" 
-    },
-    { 
-        id: "tut-02", 
-        title: "02: Managing Data", 
-        desc: "Learn about the Replica Catalog and how Pegasus automatically generates data transfer jobs.", 
-        level: "beginner", 
-        time: "20 min", 
-        icon: "fa-database", 
-        url: "lesson.html?title=02:%20Managing%20Data&notebook=pegasus-isi/ACCESS-Pegasus-Examples/blob/main/02-Tutorial-Data/02-Tutorial-Data.ipynb" 
-    },
-    { 
-        id: "tut-03", 
-        title: "03: Software Environments", 
-        desc: "Use the Transformation Catalog to map logical names to physical Apptainer/Docker containers.", 
-        level: "intermediate", 
-        time: "25 min", 
-        icon: "fa-laptop-code", 
-        url: "lesson.html?title=03:%20Software%20Environments&notebook=pegasus-isi/ACCESS-Pegasus-Examples/blob/main/03-Tutorial-Software/03-Tutorial-Software.ipynb" 
-    },
-    { 
-        id: "tut-04", 
-        title: "04: Site Layout", 
-        desc: "Learn how Pegasus plans workflows across different compute sites and staging methodologies.", 
-        level: "intermediate", 
-        time: "25 min", 
-        icon: "fa-server", 
-        url: "lesson.html?title=04:%20Site%20Layout&notebook=pegasus-isi/ACCESS-Pegasus-Examples/blob/main/04-Tutorial-Site-Layout/04-Tutorial-Site-Layout.ipynb" 
-    },
-    { 
-        id: "tut-05", 
-        title: "05: ML Training", 
-        desc: "Demonstrates training a machine learning model via distributed tasks in a Pegasus workflow.", 
-        level: "advanced", 
-        time: "30 min", 
-        icon: "fa-brain", 
-        url: "lesson.html?title=05:%20ML%20Training&notebook=pegasus-isi/ACCESS-Pegasus-Examples/blob/main/05-Tutorial-ML-Training/CropHealth-Training-Workflow.ipynb" 
-    },
-    { 
-        id: "tut-06", 
-        title: "06: ML Inference", 
-        desc: "How to load pre-trained machine learning models to run distributed inference securely.", 
-        level: "advanced", 
-        time: "30 min", 
-        icon: "fa-project-diagram", 
-        url: "lesson.html?title=06:%20ML%20Inference&notebook=pegasus-isi/ACCESS-Pegasus-Examples/blob/main/06-Tutorial-ML-Inference/CropHealth-Inference-Workflow.ipynb" 
-    },
-    { 
-        id: "tut-07", 
-        title: "07: Debugging & Stats", 
-        desc: "Master the pegasus-analyzer and statistics tools to track workflow failures and efficiency.", 
-        level: "advanced", 
-        time: "35 min", 
-        icon: "fa-bug", 
-        url: "lesson.html?title=07:%20Debugging%20and%20Statistics&notebook=pegasus-isi/ACCESS-Pegasus-Examples/blob/main/07-Tutorial-Debugging-Statistics/07-Tutorial-Debugging-Statistics.ipynb" 
-    },
-    { 
-        id: "tut-08", 
-        title: "08: Provisioning", 
-        desc: "Dynamically provision resources using glideins and submit tasks using HTCondor Annex.", 
-        level: "expert", 
-        time: "40 min", 
-        icon: "fa-cloud", 
-        url: "lesson.html?title=08:%20Provisioning&notebook=pegasus-isi/ACCESS-Pegasus-Examples/blob/main/08-Tutorial-Provisioning/08-Tutorial-Provisioning.ipynb" 
-    },
-    { 
-        id: "tut-09", 
-        title: "09: Shared Filesystem", 
-        desc: "Optimize workflows by leveraging a high-performance shared filesystem environment.", 
-        level: "expert", 
-        time: "30 min", 
-        icon: "fa-folder-tree", 
-        url: "lesson.html?title=09:%20Shared%20Filesystem&notebook=pegasus-isi/ACCESS-Pegasus-Examples/blob/main/09-Tutorial-SharedFS/09-Tutorial-SharedFS.ipynb" 
-    }
-];
-        // CORE CURRICULUM
-        const basics = [
-            { id: "Understand Pegasus-wms", title: "Pegasus WMS API", desc: "Learn how to use the Pegasus WMS API to manage workflows programmatically.", level: "beginner", time: "15 min", icon: "fa-laptop-code", url: "pegasus.html" },
-            { id: "diamond-workflow", title: "Diamond-WF Pattern", desc: "The standard Pegasus training pattern demonstrating complex task dependencies.", level: "beginner", time: "15 min", icon: "fa-gem", url: "diamond.html" },
-            { id: "split-workflow", title: "Data Splitting", desc: "A fundamental training workflow focusing on input data partitioning.", level: "beginner", time: "25 min", icon: "fa-cut", url: "split.html" },
-            { id: "merge-workflow", title: "Result Merging", desc: "Learn how to aggregate outputs from thousands of parallel jobs.", level: "beginner", time: "20 min", icon: "fa-compress-arrows-alt", url: "merge.html" },
-        ];
-
-        // ADVANCED ORCHESTRATION
-        const advanced = [
-            { id: "Heirarical Workflow", title: "Hierarchical Workflows", desc: "Learn how to build workflows within workflows for massive scale operations.", level: "advanced", time: "45 min", icon: "fa-sitemap", url: "https://pegasus.isi.edu/documentation/user-guide/hierarchical-workflows.html" },
-            { id: "Ensemble Manger", title: "Ensemble Manager", desc: "Learn how to manage multiple workflow executions simultaneously.", level: "expert", time: "1 hr 20", icon: "fa-layer-group", url: "https://pegasus.isi.edu/documentation/user-guide/ensemble-manager.html" },
-        ];
+        // --- DATA loaded from data/courses.json ---
 
         // --- SECURITY ---
         function escapeHTML(str) {
@@ -645,7 +541,7 @@
 
         // --- RENDERERS ---
 
-        function renderVideos() {
+        function renderVideos(videos) {
             const grid = document.getElementById('grid-videos');
             grid.innerHTML = videos.map(v => `
                 <div class="video-card" onclick="openVideo('${escapeHTML(v.id)}')">
@@ -664,7 +560,7 @@
         function renderCourses(data, targetId) {
             const grid = document.getElementById(targetId);
             grid.innerHTML = data.map(item => `
-                <a href="${item.url || '#'}" target="${item.url && item.url !== '#' ? '_blank' : '_self'}" class="course-card">
+                <a href="${item.url || '#'}" target="${item.url && item.url.startsWith('http') ? '_blank' : '_self'}" class="course-card">
                     <span class="badge ${item.level}">${item.level}</span>
                     <h3>${escapeHTML(item.title)}</h3>
                     <p>${escapeHTML(item.desc)}</p>
@@ -723,12 +619,25 @@
             }
         })();
 
-        // Init Content on Load
-        window.addEventListener('DOMContentLoaded', () => {
-            renderVideos();
-            renderCourses(accessTutorials, 'grid-access');
-            renderCourses(basics, 'grid-basics');
-            renderCourses(advanced, 'grid-advanced');
+        // --- INIT: load data from external JSON ---
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('data/courses.json');
+                const data = await res.json();
+
+                // Build tutorial URLs from notebook field
+                const tutorials = data.tutorials.map(t => ({
+                    ...t,
+                    url: `lesson.html?title=${encodeURIComponent(t.title)}&notebook=${encodeURIComponent(t.notebook)}`
+                }));
+
+                renderVideos(data.videos);
+                renderCourses(tutorials,   'grid-access');
+                renderCourses(data.basics,    'grid-basics');
+                renderCourses(data.advanced,  'grid-advanced');
+            } catch (e) {
+                console.error('Failed to load courses.json:', e);
+            }
         });
 
     </script>

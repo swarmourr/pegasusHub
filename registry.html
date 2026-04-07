@@ -134,7 +134,7 @@
 
         /* --- SEARCH BAR --- */
         .search-container {
-            max-width: 500px; margin: 0 auto 60px; position: relative;
+            max-width: 500px; margin: 0 auto 24px; position: relative;
         }
         .search-input {
             width: 100%; padding: 18px 24px 18px 50px;
@@ -146,6 +146,23 @@
         }
         .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
         .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        /* --- TAG FILTERS --- */
+        .filter-bar {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+            max-width: 900px; margin: 0 auto 48px; padding: 0 40px;
+        }
+        .filter-tag {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 0.72rem; font-weight: 800; padding: 6px 14px;
+            border-radius: 99px; letter-spacing: 0.5px; text-transform: uppercase;
+            cursor: pointer; transition: transform 0.2s, opacity 0.2s;
+            border: 1px solid transparent; opacity: 0.65;
+        }
+        .filter-tag:hover { opacity: 1; transform: translateY(-2px); }
+        .filter-tag.active { opacity: 1; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .filter-tag.all { background: rgba(148,163,184,0.1); color: var(--text-muted); border-color: var(--border); }
+        .filter-tag.all.active { background: var(--primary-glow); color: var(--primary); border-color: var(--primary); opacity:1; }
 
         /* --- GRID --- */
         .grid { max-width: 1400px; margin: 0 auto; padding: 0 40px 100px; display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 30px; }
@@ -175,6 +192,17 @@
         .card:hover .card-footer { color: var(--primary); }
         .arrow-btn { transition: 0.3s; transform: translateX(0); }
         .card:hover .arrow-btn { transform: translateX(5px); }
+
+        /* Multi-color tag palette */
+        .tag { display:inline-flex; align-items:center; gap:4px; font-size:0.68rem; font-weight:800; padding:4px 11px; border-radius:99px; letter-spacing:0.5px; text-transform:uppercase; white-space:nowrap; }
+        .tag-0 { background:rgba(34,211,238,0.12);  color:#22d3ee; border:1px solid rgba(34,211,238,0.3); }
+        .tag-1 { background:rgba(129,140,248,0.12); color:#818cf8; border:1px solid rgba(129,140,248,0.3); }
+        .tag-2 { background:rgba(167,139,250,0.12); color:#a78bfa; border:1px solid rgba(167,139,250,0.3); }
+        .tag-3 { background:rgba(74,222,128,0.12);  color:#4ade80; border:1px solid rgba(74,222,128,0.3); }
+        .tag-4 { background:rgba(251,146,60,0.12);  color:#fb923c; border:1px solid rgba(251,146,60,0.3); }
+        .tag-5 { background:rgba(244,114,182,0.12); color:#f472b6; border:1px solid rgba(244,114,182,0.3); }
+        .tag-6 { background:rgba(251,191,36,0.12);  color:#fbbf24; border:1px solid rgba(251,191,36,0.3); }
+        .card-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px; }
 
         /* Animation Keyframes */
         @keyframes fade-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -247,6 +275,7 @@
         </div>
     </div>
 
+    <div class="filter-bar" id="filter-bar"></div>
     <div class="grid" id="scientific-grid"></div>
 
     <footer>
@@ -256,30 +285,37 @@
             <a href="#">Privacy</a>
             <a href="https://pegasus.isi.edu">Pegasus WMS</a>
         </div>
-        <p>&copy; 2026 PegasusHub Registry. Maintained by the ISI Science Automation Technologies.</p>
+        <p>&copy; 2026 PegasusHub Registry. Maintained by the pegasus-wms team · ISI-USC.</p>
     </footer>
 
     <script>
-        const REPO = 'swarmourr/Pegasus-Hub';
-        const RAW  = 'https://raw.githubusercontent.com/' + REPO + '/refs/heads/main/';
-        const API  = 'https://api.github.com/repos/' + REPO + '/contents';
+        const WORKFLOWS_INDEX = 'https://raw.githubusercontent.com/swarmourr/Pegasus-Hub/refs/heads/main/data/workflows.json';
 
         const grid = document.getElementById('scientific-grid');
         let allWorkflows = [];
+        let activeTag = 'all';
 
-        function parseYaml(raw) {
-            const parts = raw.split('---');
-            if (parts.length < 3) return null;
-            const meta = {};
-            parts[1].trim().split('\n').forEach(l => {
-                const [k, ...v] = l.split(':');
-                if (k && v.length) meta[k.trim().toLowerCase()] = v.join(':').trim().replace(/['"]/g, '');
+        const TAG_COLORS = ['tag-0','tag-1','tag-2','tag-3','tag-4','tag-5','tag-6'];
+        const tagColorMap = {};
+
+        function buildFilterBar(workflows) {
+            const seen = new Set();
+            workflows.forEach(w => {
+                (w.topic || '').split(/[,;]/).map(t => t.trim()).filter(Boolean).forEach(t => seen.add(t));
             });
-            // get first paragraph of description as fallback desc
-            const body = parts.slice(2).join('---');
-            const descMatch = body.match(/##\s*Description\s*\n+([\s\S]*?)(\n#|\n\n\n|$)/i);
-            meta._desc = descMatch ? descMatch[1].replace(/[*_`]/g, '').trim().split('\n')[0] : '';
-            return meta;
+            const tags = [...seen];
+            tags.forEach((t, i) => { tagColorMap[t] = TAG_COLORS[i % 7]; });
+
+            const bar = document.getElementById('filter-bar');
+            bar.innerHTML = `<span class="filter-tag all active" onclick="setFilter('all', this)"><i class="fas fa-border-all"></i> All</span>` +
+                tags.map(t => `<span class="filter-tag ${tagColorMap[t]}" onclick="setFilter('${t}', this)"><i class="fas fa-tag"></i> ${t}</span>`).join('');
+        }
+
+        function setFilter(tag, el) {
+            activeTag = tag;
+            document.querySelectorAll('.filter-tag').forEach(f => f.classList.remove('active'));
+            el.classList.add('active');
+            filterGrid();
         }
 
         function renderWorkflows(data) {
@@ -289,20 +325,21 @@
                 return;
             }
             data.forEach((w, i) => {
-                const topic = w.topic || 'Workflow';
-                const name  = w.name  || w._id;
-                const desc  = w._desc || w.description || '';
-                const date  = w.last_verified || '';
+                const tags = (w.topic || 'Workflow').split(/[,;]/).map(t => t.trim()).filter(Boolean);
+                const tagsHtml = tags.map((t, j) =>
+                    `<span class="tag tag-${j % 7}"><i class="fas fa-tag"></i>${t}</span>`
+                ).join('');
+
                 grid.innerHTML += `
-                    <div class="card" onclick="location.href='details.html?id=${w._id}'" style="animation-delay:${i*0.07}s">
+                    <div class="card" onclick="location.href='details.html?id=${w.id}'" style="animation-delay:${i*0.07}s">
                         <div class="card-top">
-                            <span class="topic-badge" style="font-size:0.7rem;font-weight:800;color:var(--primary);background:var(--primary-glow);padding:6px 12px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;">${topic}</span>
+                            <div class="card-tags">${tagsHtml}</div>
                             <i class="fas fa-book-atlas card-icon"></i>
                         </div>
-                        <h3>${name}</h3>
-                        <p>${desc}</p>
+                        <h3>${w.name}</h3>
+                        <p>${w.description || ''}</p>
                         <div class="card-footer">
-                            <span>${date}</span>
+                            <span>${w.last_verified || ''}</span>
                             <i class="fas fa-arrow-right arrow-btn"></i>
                         </div>
                     </div>`;
@@ -311,40 +348,31 @@
 
         function filterGrid() {
             const q = document.getElementById('searchBar').value.toLowerCase();
-            renderWorkflows(allWorkflows.filter(w =>
-                (w.name||'').toLowerCase().includes(q) ||
-                (w.topic||'').toLowerCase().includes(q) ||
-                (w._desc||'').toLowerCase().includes(q)
-            ));
+            renderWorkflows(allWorkflows.filter(w => {
+                const matchSearch = !q ||
+                    (w.name        || '').toLowerCase().includes(q) ||
+                    (w.topic       || '').toLowerCase().includes(q) ||
+                    (w.description || '').toLowerCase().includes(q);
+                const matchTag = activeTag === 'all' ||
+                    (w.topic || '').split(/[,;]/).map(t => t.trim()).includes(activeTag);
+                return matchSearch && matchTag;
+            }));
         }
 
-        // --- LOAD FROM GITHUB ---
-        async function loadFromGitHub() {
-            grid.innerHTML = '<p style="color:var(--text-muted);padding:40px;grid-column:1/-1;text-align:center;"><i class="fas fa-spinner fa-spin"></i> Loading workflows from GitHub...</p>';
+        async function loadWorkflows() {
+            grid.innerHTML = '<p style="color:var(--text-muted);padding:40px;grid-column:1/-1;text-align:center;"><i class="fas fa-spinner fa-spin"></i> Loading workflows...</p>';
             try {
-                const res  = await fetch(API);
-                const files = await res.json();
-                const mds  = files.filter(f => f.name.endsWith('.md') && f.type === 'file');
-
-                const results = await Promise.all(mds.map(async f => {
-                    try {
-                        const r   = await fetch(RAW + f.name);
-                        const raw = await r.text();
-                        const meta = parseYaml(raw);
-                        if (!meta) return null;
-                        meta._id = f.name.replace('.md', '');
-                        return meta;
-                    } catch { return null; }
-                }));
-
-                allWorkflows = results.filter(Boolean);
+                const res  = await fetch(WORKFLOWS_INDEX);
+                const data = await res.json();
+                allWorkflows = data.workflows || [];
+                buildFilterBar(allWorkflows);
                 renderWorkflows(allWorkflows);
             } catch (e) {
                 grid.innerHTML = '<p style="color:var(--text-muted);padding:40px;grid-column:1/-1;text-align:center;">Could not load workflows. Check your connection.</p>';
             }
         }
 
-        loadFromGitHub();
+        loadWorkflows();
 
         // --- THEME LOGIC ---
         function toggleTheme() {

@@ -3,259 +3,826 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>PegasusHub | Interactive Workspace</title>
-    
+    <title>PegasusHub | Notebook Viewer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link id="hljs-theme-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark-dimmed.min.css">
+    <link id="hljs-theme-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" disabled>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
     <style>
-        /* Exact Theme Match with training.html */
         :root {
-            --bg: #355872; --surface: rgba(30, 41, 59, 0.4); --border: rgba(148, 163, 184, 0.1);
-            --primary: #22d3ee; --primary-glow: rgba(34, 211, 238, 0.2);
-            --secondary: #9CD5FF; --secondary-glow: rgba(129, 140, 248, 0.2);
-            --text-main: #f8fafc; --text-muted: #9CD5FF;
-            --glass: rgba(2, 6, 23, 0.8);
-            --grad: radial-gradient(circle at 50% -20%, rgba(129, 140, 248, 0.15) 0%, transparent 60%);
+            --bg: #020617; --surface: #0f172a; --surface2: #1e293b;
+            --border: rgba(148, 163, 184, 0.15); --border-strong: rgba(148, 163, 184, 0.25);
+            --primary: #22d3ee; --primary-glow: rgba(34, 211, 238, 0.12);
+            --text-main: #f1f5f9; --text-muted: #94a3b8; --text-dim: #64748b;
+            --glass: rgba(15, 23, 42, 0.97);
+            --code-bg: #0d1117; --out-bg: #080e1a;
+            --md-h: #f8fafc; --md-link: #22d3ee;
+            --exec-color: #22d3ee;
+            --error-bg: rgba(239, 68, 68, 0.08); --error-border: rgba(239, 68, 68, 0.3);
+            --stream-bg: #080e1a;
         }
         body.light-mode {
-            --bg: #f8fafc; --surface: rgba(255, 255, 255, 0.7); --border: #e2e8f0;
-            --primary: #0284c7; --text-main: #0f172a; --text-muted: #64748b;
-            --glass: rgba(255, 255, 255, 0.8);
-            --grad: radial-gradient(circle at 50% -20%, rgba(79, 70, 229, 0.08) 0%, transparent 60%);
+            --bg: #f1f5f9; --surface: #ffffff; --surface2: #f8fafc;
+            --border: #e2e8f0; --border-strong: #cbd5e1;
+            --primary: #0284c7; --primary-glow: rgba(2, 132, 199, 0.08);
+            --text-main: #0f172a; --text-muted: #475569; --text-dim: #94a3b8;
+            --glass: rgba(255,255,255,0.97);
+            --code-bg: #f6f8fa; --out-bg: #f8fafc;
+            --md-h: #0f172a; --md-link: #0891b2;
+            --exec-color: #0891b2;
+            --error-bg: rgba(239, 68, 68, 0.06); --error-border: rgba(239, 68, 68, 0.25);
+            --stream-bg: #f6f8fa;
         }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s, border-color 0.3s; }
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background: var(--bg); color: var(--text-main);
-            background-image: var(--grad); background-attachment: fixed;
-            min-height: 100vh; display: flex; flex-direction: column;
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            transition: background 0.3s, color 0.3s;
         }
 
-        /* Nav */
+        /* ── NAV ── */
         nav {
-            height: 80px; padding: 0 5%; background: var(--glass); backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border);
-            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
-            position: sticky; top: 0; z-index: 1000;
+            height: 60px; padding: 0 5%; background: var(--glass);
+            backdrop-filter: blur(16px); border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0; z-index: 100;
         }
-        .nav-left { display: flex; align-items: center; justify-content: flex-start; }
-        .nav-center { display: flex; align-items: center; justify-content: center; }
-        .nav-right { display: flex; align-items: center; justify-content: flex-end; gap: 20px; }
-        .nav-logo { font-weight: 800; font-size: 1.3rem; text-decoration: none; color: var(--text-main); letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
-        .nav-logo i, .nav-logo span { color: var(--primary); }
-        .nav-links { display: flex; align-items: center; list-style: none; margin: 0; padding: 0; }
-        .nav-item { display: flex; align-items: center; position: relative; }
-        .nav-item:not(:last-child)::after { content: ''; width: 25px; height: 2px; background: var(--border); margin: 0 10px; transition: 0.3s; }
-        .nav-item:hover:not(:last-child)::after, .nav-item.active-path:not(:last-child)::after { background: var(--primary); box-shadow: 0 0 10px var(--primary-glow); }
-        .nav-link { display: flex; align-items: center; gap: 8px; color: var(--text-muted); text-decoration: none; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
-        .nav-link i { background: var(--surface); border: 1px solid var(--border); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); transition: 0.3s; font-size: 0.85rem; }
-        .nav-link:hover { color: var(--text-main); }
-        .nav-link:hover i, .nav-link.active i { background: var(--primary-glow); border-color: var(--primary); transform: scale(1.1); box-shadow: 0 0 15px var(--primary-glow); color: var(--text-main); }
-        .nav-link.active { color: var(--text-main); }
-        .theme-toggle { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); width: 42px; height: 42px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .logo { font-weight: 800; font-size: 1.3rem; text-decoration: none; color: var(--text-main); letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
+        .logo i, .logo span { color: var(--primary); }
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+        .btn-back {
+            display: flex; align-items: center; gap: 7px; color: var(--text-muted);
+            text-decoration: none; font-size: 0.8rem; font-weight: 700;
+            padding: 7px 14px; border: 1px solid var(--border); border-radius: 9px;
+            transition: 0.2s; letter-spacing: 0.3px;
+        }
+        .btn-back:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-glow); }
+        .theme-toggle {
+            background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted);
+            width: 38px; height: 38px; border-radius: 9px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+            transition: 0.2s;
+        }
         .theme-toggle:hover { color: var(--primary); border-color: var(--primary); }
-        @media (max-width: 1000px) {
-            nav { grid-template-columns: 1fr; gap: 15px; justify-items: center; height: auto; padding: 20px 5%; }
-            .nav-left, .nav-center, .nav-right { justify-content: center; }
-            .nav-links { flex-wrap: wrap; justify-content: center; gap: 10px; }
-            .nav-item:not(:last-child)::after { display: none; }
-        }
 
-        /* Main Workspace Area */
-        .workspace { flex-grow: 1; padding: 40px 5%; display: flex; flex-direction: column; max-width: 1600px; margin: 0 auto; width: 100%; }
-        
-        /* IDE-Style Container */
-        .ide-container {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            display: flex; flex-direction: column;
-            overflow: hidden; backdrop-filter: blur(12px);
-            height: calc(100vh - 160px); /* Responsive height */
+        /* ── TOOLBAR ── */
+        .toolbar {
+            padding: 10px 5%; background: var(--surface); border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+            transition: background 0.3s;
         }
-
-        /* IDE Toolbar */
-        .ide-toolbar {
-            padding: 15px 25px; border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0,0,0,0.2);
-        }
-        body.light-mode .ide-toolbar { background: rgba(255,255,255,0.5); }
-        
-        .ide-title-group { display: flex; flex-direction: column; }
-        .ide-title { font-size: 1.2rem; font-weight: 700; color: var(--text-main); }
-        .ide-subtitle { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
-
-        .ide-actions { display: flex; gap: 12px; }
+        .toolbar-left { display: flex; flex-direction: column; gap: 2px; }
+        .notebook-title { font-size: 0.95rem; font-weight: 700; color: var(--text-main); }
+        .notebook-sub { font-size: 0.68rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.2px; }
+        .toolbar-actions { display: flex; gap: 8px; }
         .action-btn {
-            background: var(--surface); color: var(--text-main); border: 1px solid var(--border);
-            padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700;
-            cursor: pointer; display: flex; align-items: center; gap: 8px; text-decoration: none;
+            display: flex; align-items: center; gap: 6px;
+            background: transparent; color: var(--text-muted); border: 1px solid var(--border);
+            padding: 6px 13px; border-radius: 8px; font-size: 0.78rem; font-weight: 700;
+            cursor: pointer; text-decoration: none; transition: 0.2s; font-family: inherit; letter-spacing: 0.3px;
         }
-        .action-btn:hover { background: var(--primary); border-color: var(--primary); color: #fff; transform: translateY(-2px); box-shadow: 0 10px 20px var(--primary-glow); }
+        .action-btn:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-glow); }
 
-        /* Iframe & Loading Area */
-        .iframe-wrapper { flex-grow: 1; position: relative; background: #fff; }
-        iframe { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; z-index: 10; opacity: 0; transition: opacity 0.5s ease; }
-        iframe.loaded { opacity: 1; }
+        /* ── SCROLL AREA (overridden below with TOC layout) ── */
 
-        /* Sleek CSS Loader */
-        .loader-container {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: var(--bg); z-index: 5;
+        /* ── NOTEBOOK ── */
+        .notebook { max-width: 980px; margin: 0 auto; padding: 40px 32px 100px; }
+
+        /* ── LOADER ── */
+        .loader {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 18px; min-height: 60vh;
         }
         .spinner {
-            width: 50px; height: 50px; border: 4px solid var(--surface);
-            border-top: 4px solid var(--primary); border-radius: 50%;
-            animation: spin 1s linear infinite; margin-bottom: 20px;
+            width: 42px; height: 42px; border: 3px solid var(--surface2);
+            border-top-color: var(--primary); border-radius: 50%;
+            animation: spin 0.85s linear infinite;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .loader-text { color: var(--text-muted); font-weight: 600; font-size: 0.9rem; letter-spacing: 1px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader p { color: var(--text-dim); font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
 
+        /* ── CELLS ── */
+        .cell { margin-bottom: 6px; }
+
+        /* Markdown cell */
+        .cell-md {
+            padding: 14px 0;
+            line-height: 1.85;
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* H1 — big section title with cyan gradient */
+        .cell-md h1 {
+            font-size: 2rem; font-weight: 800; letter-spacing: -1px; line-height: 1.2;
+            margin: 0.6em 0 0.5em;
+            background: linear-gradient(135deg, var(--primary) 0%, #818cf8 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            padding-bottom: 0.5em; border-bottom: 1px solid var(--border);
+        }
+        /* H2 — section header with cyan left accent */
+        .cell-md h2 {
+            font-size: 1.35rem; font-weight: 800; letter-spacing: -0.5px; line-height: 1.3;
+            margin: 1.8em 0 0.6em;
+            color: var(--text-main);
+            padding-left: 14px;
+            border-left: 3px solid var(--primary);
+        }
+        /* H3 — subsection, muted cyan */
+        .cell-md h3 {
+            font-size: 1.05rem; font-weight: 700; letter-spacing: 0.3px;
+            margin: 1.4em 0 0.5em;
+            color: var(--primary);
+            text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1.5px;
+        }
+        /* H4 — label style */
+        .cell-md h4 {
+            font-size: 0.88rem; font-weight: 700; color: var(--text-dim);
+            margin: 1.2em 0 0.4em; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .cell-md p { margin-bottom: 1em; color: var(--text-muted); }
+        .cell-md strong { color: var(--text-main); font-weight: 700; }
+        .cell-md em { color: var(--primary); font-style: italic; }
+        .cell-md a { color: var(--primary); text-decoration: none; font-weight: 600; }
+        .cell-md a:hover { text-decoration: underline; opacity: 0.85; }
+        .cell-md ul { padding-left: 0; margin-bottom: 1em; list-style: none; }
+        .cell-md ul li {
+            padding: 4px 0 4px 22px; position: relative; color: var(--text-muted);
+        }
+        .cell-md ul li::before {
+            content: ''; position: absolute; left: 6px; top: 13px;
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--primary); opacity: 0.7;
+        }
+        .cell-md blockquote {
+            border-left: 3px solid var(--primary); margin: 1.4em 0;
+            padding: 12px 20px; background: var(--primary-glow);
+            border-radius: 0 10px 10px 0; color: var(--text-muted);
+            font-style: italic;
+        }
+        .cell-md code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--surface2); color: var(--primary);
+            padding: 2px 7px; border-radius: 5px; font-size: 0.83em;
+            border: 1px solid var(--border);
+        }
+        .cell-md pre {
+            background: var(--code-bg); border-radius: 10px; padding: 18px;
+            overflow-x: auto; margin: 1.4em 0;
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--primary);
+        }
+        .cell-md pre code { background: transparent; color: inherit; padding: 0; font-size: 0.85rem; border: none; }
+        .cell-md table { width: 100%; border-collapse: collapse; margin: 1.4em 0; font-size: 0.9rem; border-radius: 10px; overflow: hidden; }
+        .cell-md thead { background: linear-gradient(135deg, rgba(34,211,238,0.15), rgba(129,140,248,0.1)); }
+        .cell-md th { color: var(--primary); font-weight: 700; padding: 10px 14px; text-align: left; border: 1px solid var(--border); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.8px; }
+        .cell-md td { padding: 9px 14px; border: 1px solid var(--border); color: var(--text-muted); }
+        .cell-md tr:nth-child(even) td { background: var(--surface2); }
+        .cell-md img { display: block; max-width: 80%; margin: 1.8em auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); border: 1px solid var(--border); }
+        .cell-md hr { border: none; border-top: 1px solid var(--border); margin: 2.4em 0; position: relative; }
+        .cell-md hr::after { content: '◆'; position: absolute; left: 50%; transform: translateX(-50%) translateY(-55%); background: var(--bg); padding: 0 10px; color: var(--primary); font-size: 0.6rem; opacity: 0.5; }
+
+        /* Ordered list → cards */
+        .ol-cards {
+            display: flex; flex-wrap: wrap; gap: 16px;
+            margin: 1.6em 0; list-style: none; padding: 0;
+        }
+        .ol-cards li {
+            flex: 1 1 280px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 14px; padding: 22px 22px 22px 62px;
+            position: relative; line-height: 1.7; font-size: 0.96rem;
+            color: var(--text-muted); transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        }
+        .ol-cards li:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow), 0 8px 24px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+        .ol-cards li strong { color: var(--text-main); }
+        .ol-cards li .card-num {
+            position: absolute; left: 18px; top: 20px;
+            width: 30px; height: 30px; border-radius: 8px;
+            background: var(--primary-glow); border: 1px solid var(--primary);
+            color: var(--primary); font-size: 0.78rem; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Code input cell */
+        .cell-code { margin-bottom: 2px; }
+        .cell-in-wrap {
+            display: flex; align-items: stretch; gap: 0;
+            border-radius: 10px 10px 0 0; overflow: hidden;
+            border: 1px solid var(--border); border-bottom: none;
+        }
+        .cell-in-wrap.no-output { border-radius: 10px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+        .exec-count {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem; font-weight: 600; color: var(--exec-color);
+            background: var(--surface2); padding: 14px 10px 0;
+            min-width: 54px; text-align: right;
+            user-select: none; flex-shrink: 0;
+            border-right: 1px solid var(--border);
+        }
+        .cell-source {
+            flex: 1; background: var(--code-bg); overflow-x: auto;
+        }
+        .cell-source pre {
+            margin: 0; padding: 14px 16px;
+        }
+        .cell-source pre code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem; line-height: 1.65;
+            background: transparent !important;
+        }
+
+        /* Output area */
+        .cell-outputs { border: 1px solid var(--border); border-top: 1px solid var(--border-strong); border-radius: 0 0 10px 10px; overflow: hidden; margin-bottom: 16px; }
+        .cell-out-wrap { display: flex; align-items: stretch; }
+        .out-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem; font-weight: 600; color: var(--text-dim);
+            background: var(--surface2); padding: 10px 10px 0;
+            min-width: 54px; text-align: right;
+            user-select: none; flex-shrink: 0;
+            border-right: 1px solid var(--border);
+        }
+        .cell-out {
+            flex: 1; background: var(--out-bg);
+            padding: 10px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem; line-height: 1.6;
+            color: var(--text-muted);
+            overflow-x: auto;
+        }
+        .cell-out pre { margin: 0; white-space: pre-wrap; word-break: break-word; }
+        .cell-out-stream { background: var(--stream-bg); border-top: 1px solid var(--border); }
+        .cell-out-stream pre { color: var(--text-muted); }
+        .cell-out-stderr { background: rgba(251,191,36,0.05); border-left: 3px solid rgba(251,191,36,0.4); }
+        .cell-out-stderr pre { color: #fbbf24; }
+        .cell-out img { display: block; max-width: 80%; margin: 1em auto; border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,0.25); }
+        .cell-out-error {
+            background: var(--error-bg); border-left: 3px solid var(--error-border);
+            padding: 10px 16px; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem; line-height: 1.6; color: #f87171; white-space: pre-wrap;
+        }
+        .cell-out table { border-collapse: collapse; font-size: 0.8rem; width: 100%; }
+        .cell-out th { background: var(--surface2); color: var(--text-main); font-weight: 700; padding: 6px 10px; border: 1px solid var(--border); }
+        .cell-out td { padding: 5px 10px; border: 1px solid var(--border); color: var(--text-muted); }
+        .cell-out tr:nth-child(even) td { background: var(--surface2); }
+
+        /* Raw cell */
+        .cell-raw {
+            background: var(--surface2); border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+            color: var(--text-dim); line-height: 1.6;
+        }
+
+        /* Error state */
+        .error-state {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 16px; min-height: 60vh; text-align: center;
+        }
+        .error-state i { font-size: 2.5rem; color: #f43f5e; }
+        .error-state p { color: var(--text-muted); font-size: 0.95rem; }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+            background: linear-gradient(90deg, var(--primary), #818cf8);
+            z-index: 9999; transition: width 0.1s linear;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        /* ── LAYOUT WITH TOC ── */
+        .viewer-layout { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+        .viewer { flex: 1; overflow-y: auto; background: var(--bg); transition: background 0.3s; }
+        .viewer::-webkit-scrollbar { width: 6px; }
+        .viewer::-webkit-scrollbar-track { background: transparent; }
+        .viewer::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+        /* ── TOC SIDEBAR ── */
+        .toc-sidebar {
+            width: 240px; flex-shrink: 0; overflow-y: auto;
+            border-left: 1px solid var(--border); background: var(--surface);
+            padding: 20px 0; transition: background 0.3s, transform 0.3s;
+        }
+        .toc-sidebar::-webkit-scrollbar { width: 4px; }
+        .toc-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .toc-header {
+            font-size: 0.65rem; font-weight: 800; color: var(--text-dim);
+            text-transform: uppercase; letter-spacing: 1.5px;
+            padding: 0 16px 12px; border-bottom: 1px solid var(--border); margin-bottom: 10px;
+        }
+        .toc-item {
+            display: block; padding: 5px 16px; font-size: 0.78rem; font-weight: 500;
+            color: var(--text-dim); text-decoration: none; cursor: pointer;
+            border-left: 2px solid transparent; transition: 0.15s; line-height: 1.4;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .toc-item:hover { color: var(--text-main); background: var(--primary-glow); }
+        .toc-item.active { color: var(--primary); border-left-color: var(--primary); background: var(--primary-glow); font-weight: 700; }
+        .toc-item.h1 { padding-left: 16px; font-weight: 700; color: var(--text-muted); }
+        .toc-item.h2 { padding-left: 24px; }
+        .toc-item.h3 { padding-left: 36px; font-size: 0.73rem; }
+        .toc-empty { padding: 12px 16px; font-size: 0.75rem; color: var(--text-dim); font-style: italic; }
+
+        /* ── COPY BUTTON ── */
+        .cell-in-wrap { position: relative; }
+        .copy-btn {
+            position: absolute; top: 8px; right: 10px; z-index: 10;
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--text-dim); font-size: 0.7rem; font-weight: 700;
+            padding: 4px 10px; border-radius: 6px; cursor: pointer;
+            font-family: inherit; display: flex; align-items: center; gap: 5px;
+            opacity: 0; transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+        }
+        .cell-in-wrap:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { color: var(--primary); border-color: var(--primary); }
+        .copy-btn.copied { color: #4ade80; border-color: #4ade80; }
+
+        /* ── SCROLL TO TOP ── */
+        .scroll-top {
+            position: fixed; bottom: 32px; right: 32px; z-index: 200;
+            width: 40px; height: 40px; border-radius: 10px;
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text-muted); cursor: pointer; font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.2s;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+        .scroll-top.visible { opacity: 1; pointer-events: all; }
+        .scroll-top:hover { color: var(--primary); border-color: var(--primary); transform: translateY(-2px); }
+
+        /* ── READ TIME badge ── */
+        .read-time { font-size: 0.68rem; color: var(--text-dim); font-weight: 600; letter-spacing: 0.5px; margin-top: 2px; }
+
+        /* ── COURSE NAV ── */
+        .course-nav {
+            display: flex; align-items: stretch; justify-content: space-between; gap: 16px;
+            margin: 48px 0 0; padding-top: 32px; border-top: 1px solid var(--border);
+        }
+        .course-nav-btn {
+            flex: 1; display: flex; align-items: center; gap: 14px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 14px; padding: 18px 22px; text-decoration: none;
+            color: var(--text-muted); transition: 0.2s; cursor: pointer;
+            max-width: 48%;
+        }
+        .course-nav-btn:hover { border-color: var(--primary); color: var(--text-main); box-shadow: 0 0 0 3px var(--primary-glow); }
+        .course-nav-btn.next { flex-direction: row-reverse; text-align: right; margin-left: auto; }
+        .course-nav-btn .nav-icon {
+            width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+            background: var(--primary-glow); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary); font-size: 0.9rem; transition: 0.2s;
+        }
+        .course-nav-btn:hover .nav-icon { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .course-nav-btn .nav-label { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-dim); margin-bottom: 3px; }
+        .course-nav-btn .nav-title { font-size: 0.9rem; font-weight: 700; color: var(--text-main); line-height: 1.3; }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="nav-left">
-            <a href="index.html" class="nav-logo"><i class="fas fa-layer-group"></i> PEGASUS<span>HUB</span></a>
-        </div>
-        <div class="nav-center">
-            <ul class="nav-links">
-                <li class="nav-item active-path">
-                    <a href="index.html" class="nav-link">
-                        <i class="fas fa-info-circle"></i> About
-                    </a>
-                </li>
-                <li class="nav-item active-path">
-                    <a href="training.html" class="nav-link active">
-                        <i class="fas fa-graduation-cap"></i> Academy
-                    </a>
-                </li>
-                <li class="nav-item active-path">
-                    <a href="registry.html" class="nav-link">
-                        <i class="fas fa-book-atlas"></i> Examples
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="deployment.html" class="nav-link">
-                        <i class="fas fa-rocket"></i> Build & Run
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="deployment.html#contribute" class="nav-link">
-                        <i class="fas fa-code-pull-request"></i> Contribute
-                    </a>
-                </li>
-            </ul>
-        </div>
+        <a href="index.html" class="logo"><i class="fas fa-layer-group"></i> PEGASUS<span>HUB</span></a>
         <div class="nav-right">
-            <a href="https://github.com/pegasus-isi" target="_blank" style="color: var(--text-muted); font-size: 1.2rem; transition: 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'"><i class="fab fa-github"></i></a>
-            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
-                <i class="fas fa-moon"></i>
-            </button>
+            <a href="training.html" class="btn-back"><i class="fas fa-arrow-left"></i> Academy</a>
+            <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
         </div>
     </nav>
 
-    <div class="workspace">
-        <div class="ide-container" id="ide-container">
-            
-            <div class="ide-toolbar">
-                <div class="ide-title-group">
-                    <span class="ide-title" id="page-title">Initializing Workspace...</span>
-                    <span class="ide-subtitle">Interactive Jupyter Environment</span>
-                </div>
-                <div class="ide-actions">
-                    <a href="training.html" class="action-btn" title="Back to Academy">
-                        <i class="fas fa-arrow-left"></i> Back
-                    </a>
-                    <a href="#" id="download-btn" target="_blank" class="action-btn" title="Download .ipynb">
-                        <i class="fas fa-download"></i> Download
-                    </a>
-                    <a href="#" id="repo-link" target="_blank" class="action-btn" title="View Source on GitHub">
-                        <i class="fab fa-github"></i> Source
-                    </a>
-                    <button class="action-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
-                        <i class="fas fa-expand"></i>
-                    </button>
-                </div>
-            </div>
+    <div class="progress-bar" id="progress-bar"></div>
 
-            <div class="iframe-wrapper">
-                <div class="loader-container" id="loader">
-                    <div class="spinner"></div>
-                    <div class="loader-text">CONNECTING TO JUPYTER RENDERER...</div>
-                </div>
-                <iframe id="notebook-frame" src="" title="Notebook Viewer" allowfullscreen></iframe>
-            </div>
-
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <span class="notebook-title" id="page-title">Loading...</span>
+            <span class="notebook-sub">Jupyter Notebook &nbsp;·&nbsp; <span id="read-time"></span></span>
+        </div>
+        <div class="toolbar-actions">
+            <a href="#" id="download-btn" target="_blank" class="action-btn">
+                <i class="fas fa-download"></i> Download
+            </a>
+            <a href="#" id="repo-link" target="_blank" class="action-btn">
+                <i class="fab fa-github"></i> Source
+            </a>
+            <button class="action-btn" onclick="toggleFullscreen()">
+                <i class="fas fa-expand"></i> Fullscreen
+            </button>
         </div>
     </div>
 
+    <div class="viewer-layout">
+        <div class="viewer" id="viewer">
+            <div class="notebook" id="notebook">
+                <div class="loader" id="loader">
+                    <div class="spinner"></div>
+                    <p>Loading Notebook...</p>
+                </div>
+            </div>
+        </div>
+        <aside class="toc-sidebar" id="toc-sidebar">
+            <div class="toc-header"><i class="fas fa-list"></i> &nbsp;Contents</div>
+            <div id="toc-list"><p class="toc-empty">Loading...</p></div>
+        </aside>
+    </div>
+
+    <button class="scroll-top" id="scroll-top" onclick="document.getElementById('viewer').scrollTo({top:0,behavior:'smooth'})">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
     <script>
+        /* ── Theme ── */
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
-            const icon = document.querySelector('.theme-toggle i');
-            const mode = document.body.classList.contains('light-mode') ? 'light' : 'dark';
-            localStorage.setItem('theme', mode);
-            icon.className = mode === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            document.querySelector('.theme-toggle i').className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+            document.getElementById('hljs-theme-dark').disabled = isLight;
+            document.getElementById('hljs-theme-light').disabled = !isLight;
         }
-        if (localStorage.getItem('theme') === 'light') { document.body.classList.add('light-mode'); document.querySelector('.theme-toggle i').className = 'fas fa-sun'; }
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+            document.getElementById('hljs-theme-dark').disabled = true;
+            document.getElementById('hljs-theme-light').disabled = false;
+        }
 
-        // Grab parameters from the URL
-        const params = new URLSearchParams(window.location.search);
-        const title = params.get('title');
-        const notebookPath = params.get('notebook'); // e.g., pegasus-isi/ACCESS-Pegasus-Examples/blob/main/...
+        /* ── Params ── */
+        const params       = new URLSearchParams(window.location.search);
+        const title        = params.get('title');
+        const notebookPath = params.get('notebook'); // e.g. owner/repo/blob/branch/path/to/nb.ipynb
 
-        if (title && notebookPath) {
-            // Set Titles and Links
-            document.getElementById('page-title').innerText = title;
-            document.getElementById('repo-link').href = "https://github.com/" + notebookPath;
-            
-            // Generate Raw Download Link (Converts /blob/ to /raw/)
-            const rawPath = notebookPath.replace('/blob/', '/raw/');
-            document.getElementById('download-btn').href = "https://github.com/" + rawPath;
-
-            // Generate the NBViewer URL
-            const viewerUrl = "https://nbviewer.jupyter.org/github/" + notebookPath;
-            const iframe = document.getElementById('notebook-frame');
-            
-            // Set the iframe source
-            iframe.src = viewerUrl;
-
-            // Hide the loader and fade in the iframe once it finishes loading
-            iframe.onload = function() {
-                document.getElementById('loader').style.display = 'none';
-                iframe.classList.add('loaded');
-            };
-
+        if (!title || !notebookPath) {
+            showError('Invalid or missing notebook URL.');
         } else {
-            // Error Handling if parameters are missing
-            document.getElementById('page-title').innerText = "404: Notebook Not Found";
-            document.getElementById('loader').innerHTML = `
-                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #f43f5e; margin-bottom: 20px;"></i>
-                <div style="color: var(--text-main); font-size: 1.2rem; margin-bottom: 10px;">Invalid or missing URL parameters.</div>
-                <a href="training.html" class="action-btn" style="width: fit-content; margin-top: 15px;">Return to Academy</a>
-            `;
+            document.getElementById('page-title').innerText = decodeURIComponent(title);
+            document.getElementById('repo-link').href  = 'https://github.com/' + notebookPath;
+            document.getElementById('download-btn').href = 'https://raw.githubusercontent.com/' + notebookPath.replace('/blob/', '/');
+            loadCourses().then(() => loadNotebook(notebookPath));
         }
 
-        // Fullscreen Toggle Logic
-        function toggleFullscreen() {
-            const ide = document.getElementById('ide-container');
-            if (!document.fullscreenElement) {
-                if (ide.requestFullscreen) ide.requestFullscreen();
-                else if (ide.webkitRequestFullscreen) ide.webkitRequestFullscreen(); // Safari
-                else if (ide.msRequestFullscreen) ide.msRequestFullscreen(); // IE11
+        /* ── Loader ── */
+        async function loadNotebook(path) {
+            const rawUrl = 'https://raw.githubusercontent.com/' + path.replace('/blob/', '/');
+            // Base directory URL for resolving relative image paths
+            const rawBase = rawUrl.substring(0, rawUrl.lastIndexOf('/') + 1);
+            try {
+                const res = await fetch(rawUrl);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const nb  = await res.json();
+                renderNotebook(nb, rawBase);
+            } catch (e) {
+                showError('Could not load notebook: ' + e.message);
+            }
+        }
+
+        /* ── Renderer ── */
+        function renderNotebook(nb, rawBase) {
+            const container = document.getElementById('notebook');
+            container.innerHTML = '';
+
+            const cells = nb.cells || nb.worksheets?.[0]?.cells || [];
+            if (cells.length === 0) {
+                container.innerHTML = '<div class="loader"><p>Empty notebook</p></div>';
+                return;
+            }
+
+            cells.forEach((cell, idx) => {
+                const src = (cell.source || cell.input || []).join('');
+                if (!src.trim() && (cell.cell_type === 'code') && !(cell.outputs?.length)) return;
+
+                if (cell.cell_type === 'markdown') {
+                    container.appendChild(renderMarkdown(src, cell.attachments, rawBase));
+                } else if (cell.cell_type === 'code') {
+                    container.appendChild(renderCode(src, cell.execution_count, cell.outputs || [], rawBase));
+                } else if (cell.cell_type === 'raw') {
+                    container.appendChild(renderRaw(src));
+                }
+            });
+
+            hljs.highlightAll();
+            buildTOC();
+            addCopyButtons();
+            calcReadTime();
+            buildCourseNav();
+        }
+
+        function b64clean(val) {
+            // Normalize: join array lines, strip all whitespace
+            return (Array.isArray(val) ? val.join('') : val).replace(/\s/g, '');
+        }
+
+        function olToCards(container) {
+            container.querySelectorAll('ol').forEach(ol => {
+                ol.classList.add('ol-cards');
+                let n = 1;
+                ol.querySelectorAll(':scope > li').forEach(li => {
+                    const num = document.createElement('span');
+                    num.className = 'card-num';
+                    num.textContent = n++;
+                    li.prepend(num);
+                });
+            });
+        }
+
+        function resolveImgSrc(src, rawBase) {
+            if (!src || src.startsWith('http') || src.startsWith('data:') || src.startsWith('//')) return src;
+            return rawBase + src;
+        }
+
+        function renderMarkdown(src, attachments, rawBase) {
+            // Resolve attachment: URIs before parsing
+            if (attachments) {
+                src = src.replace(/!\[([^\]]*)\]\(attachment:([^)]+)\)/g, (match, alt, filename) => {
+                    const att = attachments[filename];
+                    if (!att) return match;
+                    const mimeType = Object.keys(att)[0];
+                    if (mimeType === 'image/svg+xml') {
+                        const svg = Array.isArray(att[mimeType]) ? att[mimeType].join('') : att[mimeType];
+                        return `![${alt}](data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))})`;
+                    }
+                    return `![${alt}](data:${mimeType};base64,${b64clean(att[mimeType])})`;
+                });
+            }
+            const div = document.createElement('div');
+            div.className = 'cell cell-md';
+            div.innerHTML = marked.parse(src);
+            // Fix all relative img srcs after parsing (catches ![]() and <img> tags)
+            if (rawBase) {
+                div.querySelectorAll('img').forEach(img => {
+                    img.src = resolveImgSrc(img.getAttribute('src'), rawBase);
+                });
+            }
+            olToCards(div);
+            return div;
+        }
+
+        function renderCode(src, execCount, outputs, rawBase) {
+            const wrap = document.createElement('div');
+            wrap.className = 'cell cell-code';
+
+            const hasOutputs = outputs.length > 0;
+
+            // Input
+            const inWrap = document.createElement('div');
+            inWrap.className = 'cell-in-wrap' + (hasOutputs ? '' : ' no-output');
+
+            const label = document.createElement('div');
+            label.className = 'exec-count';
+            label.textContent = execCount != null ? `[${execCount}]:` : '[ ]:';
+
+            const srcDiv = document.createElement('div');
+            srcDiv.className = 'cell-source';
+            const pre = document.createElement('pre');
+            const code = document.createElement('code');
+            code.className = 'language-python';
+            code.textContent = src;
+            pre.appendChild(code);
+            srcDiv.appendChild(pre);
+
+            inWrap.appendChild(label);
+            inWrap.appendChild(srcDiv);
+            wrap.appendChild(inWrap);
+
+            // Outputs
+            if (hasOutputs) {
+                const outsDiv = document.createElement('div');
+                outsDiv.className = 'cell-outputs';
+                outputs.forEach((out, i) => {
+                    outsDiv.appendChild(renderOutput(out, execCount, i, rawBase));
+                });
+                wrap.appendChild(outsDiv);
+            }
+
+            return wrap;
+        }
+
+        function arr(v) { return Array.isArray(v) ? v.join('') : (v || ''); }
+
+        function makeImg(b64, mime) {
+            const img = document.createElement('img');
+            try {
+                img.src = 'data:' + mime + ';base64,' + b64clean(b64);
+            } catch(e) {}
+            return img;
+        }
+
+        function stripAnsi(s) { return s.replace(/\x1b\[[0-9;]*[mGKHF]/g, ''); }
+
+        function renderOutput(out, execCount, idx, rawBase) {
+            const wrap = document.createElement('div');
+            wrap.className = 'cell-out-wrap';
+
+            const label = document.createElement('div');
+            label.className = 'out-label';
+            const content = document.createElement('div');
+
+            /* ── Error ── */
+            if (out.output_type === 'error') {
+                label.textContent = '';
+                content.className = 'cell-out-error';
+                const tb = stripAnsi((out.traceback || []).join('\n'));
+                content.textContent = (out.ename + ': ' + out.evalue + '\n\n' + tb).trim();
+                wrap.appendChild(label); wrap.appendChild(content);
+                return wrap;
+            }
+
+            /* ── Stream (print / stderr) ── */
+            if (out.output_type === 'stream') {
+                const text = arr(out.text);
+                if (!text.trim()) return document.createDocumentFragment();
+                label.textContent = '';
+                content.className = 'cell-out cell-out-stream' + (out.name === 'stderr' ? ' cell-out-stderr' : '');
+                const pre = document.createElement('pre');
+                pre.textContent = stripAnsi(text);
+                content.appendChild(pre);
+                wrap.appendChild(label); wrap.appendChild(content);
+                return wrap;
+            }
+
+            /* ── display_data / execute_result ── */
+            const isResult = out.output_type === 'execute_result';
+            label.textContent = isResult && execCount != null ? `[${execCount}]:` : '';
+            content.className = 'cell-out';
+
+            // nbformat v4 uses out.data, v3 uses out.png / out.jpeg etc.
+            const data  = out.data || {};
+            const png   = data['image/png']      || out.png;
+            const jpeg  = data['image/jpeg']     || out.jpeg;
+            const svg   = data['image/svg+xml']  || out.svg;
+            const html  = data['text/html']      || out.html;
+            const latex = data['text/latex'];
+            const plain = data['text/plain']     || out.text;
+
+            if (png) {
+                content.appendChild(makeImg(png, 'image/png'));
+            } else if (jpeg) {
+                content.appendChild(makeImg(jpeg, 'image/jpeg'));
+            } else if (svg) {
+                content.innerHTML = arr(svg);
+            } else if (html) {
+                const htmlStr = arr(html).replace(/src="(?!http|data|\/\/)([^"]+)"/g,
+                    (m, p) => `src="${resolveImgSrc(p, rawBase)}"`);
+                content.innerHTML = htmlStr;
+            } else if (latex) {
+                const pre = document.createElement('pre');
+                pre.textContent = arr(latex);
+                content.appendChild(pre);
+            } else if (plain) {
+                const text = stripAnsi(arr(plain));
+                if (!text.trim()) return document.createDocumentFragment();
+                const pre = document.createElement('pre');
+                pre.textContent = text;
+                content.appendChild(pre);
             } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-                else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); // Safari
-                else if (document.msExitFullscreen) document.msExitFullscreen(); // IE11
+                return document.createDocumentFragment(); // nothing to show
+            }
+
+            wrap.appendChild(label); wrap.appendChild(content);
+            return wrap;
+        }
+
+        function renderRaw(src) {
+            const div = document.createElement('div');
+            div.className = 'cell cell-raw';
+            div.textContent = src;
+            return div;
+        }
+
+        /* ── TOC ── */
+        function buildTOC() {
+            const headings = document.querySelectorAll('#notebook .cell-md h1, #notebook .cell-md h2, #notebook .cell-md h3');
+            const list = document.getElementById('toc-list');
+            if (!headings.length) { list.innerHTML = '<p class="toc-empty">No headings found</p>'; return; }
+            list.innerHTML = '';
+            headings.forEach((h, i) => {
+                h.id = 'heading-' + i;
+                const level = h.tagName.toLowerCase();
+                const item = document.createElement('a');
+                item.className = 'toc-item ' + level;
+                item.textContent = h.textContent;
+                item.onclick = () => {
+                    h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.querySelectorAll('.toc-item').forEach(t => t.classList.remove('active'));
+                    item.classList.add('active');
+                };
+                list.appendChild(item);
+            });
+            // Highlight active on scroll
+            const viewer = document.getElementById('viewer');
+            viewer.addEventListener('scroll', () => {
+                const scrollY = viewer.scrollTop + 100;
+                let current = 0;
+                headings.forEach((h, i) => { if (h.offsetTop <= scrollY) current = i; });
+                document.querySelectorAll('.toc-item').forEach((t, i) => t.classList.toggle('active', i === current));
+            }, { passive: true });
+        }
+
+        /* ── COPY BUTTONS ── */
+        function addCopyButtons() {
+            document.querySelectorAll('.cell-in-wrap').forEach(wrap => {
+                const code = wrap.querySelector('code');
+                if (!code) return;
+                const btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                btn.onclick = () => {
+                    navigator.clipboard.writeText(code.textContent).then(() => {
+                        btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+                        btn.classList.add('copied');
+                        setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i> Copy'; btn.classList.remove('copied'); }, 2000);
+                    });
+                };
+                wrap.appendChild(btn);
+            });
+        }
+
+        /* ── READ TIME ── */
+        function calcReadTime() {
+            const text = document.getElementById('notebook').innerText || '';
+            const words = text.trim().split(/\s+/).length;
+            const mins = Math.max(1, Math.round(words / 200));
+            document.getElementById('read-time').textContent = `~${mins} min read`;
+        }
+
+        /* ── COURSE NAV (loaded from data/courses.json) ── */
+        let COURSES = [];
+
+        async function loadCourses() {
+            try {
+                const res = await fetch('data/courses.json');
+                const data = await res.json();
+                COURSES = data.tutorials;
+            } catch(e) {}
+        }
+
+        function buildCourseNav() {
+            const currentNotebook = params.get('notebook');
+            const idx = COURSES.findIndex(c => c.notebook === currentNotebook);
+            if (idx === -1) return;
+
+            const prev = COURSES[idx - 1];
+            const next = COURSES[idx + 1];
+
+            const nav = document.createElement('div');
+            nav.className = 'course-nav';
+
+            if (prev) {
+                const a = document.createElement('a');
+                a.className = 'course-nav-btn prev';
+                a.href = `lesson.html?title=${encodeURIComponent(prev.title)}&notebook=${encodeURIComponent(prev.notebook)}`;
+                a.innerHTML = `<div class="nav-icon"><i class="fas fa-arrow-left"></i></div>
+                    <div><div class="nav-label">Previous</div><div class="nav-title">${prev.title}</div></div>`;
+                nav.appendChild(a);
+            } else {
+                nav.appendChild(document.createElement('div')); // spacer
+            }
+
+            if (next) {
+                const a = document.createElement('a');
+                a.className = 'course-nav-btn next';
+                a.href = `lesson.html?title=${encodeURIComponent(next.title)}&notebook=${encodeURIComponent(next.notebook)}`;
+                a.innerHTML = `<div class="nav-icon"><i class="fas fa-arrow-right"></i></div>
+                    <div><div class="nav-label">Next</div><div class="nav-title">${next.title}</div></div>`;
+                nav.appendChild(a);
+            }
+
+            document.getElementById('notebook').appendChild(nav);
+        }
+
+        /* ── PROGRESS BAR & SCROLL TOP ── */
+        document.getElementById('viewer').addEventListener('scroll', function() {
+            const el = this;
+            const pct = el.scrollTop / (el.scrollHeight - el.clientHeight) * 100;
+            document.getElementById('progress-bar').style.width = pct + '%';
+            document.getElementById('scroll-top').classList.toggle('visible', el.scrollTop > 300);
+        }, { passive: true });
+
+        /* ── Error ── */
+        function showError(msg) {
+            document.getElementById('page-title').innerText = 'Notebook Not Found';
+            document.getElementById('notebook').innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>${msg}</p>
+                    <a href="training.html" class="action-btn" style="margin-top:8px;"><i class="fas fa-arrow-left"></i> Return to Academy</a>
+                </div>`;
+        }
+
+        /* ── Fullscreen ── */
+        function toggleFullscreen() {
+            const el = document.getElementById('viewer');
+            if (!document.fullscreenElement) {
+                (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+            } else {
+                (document.exitFullscreen || document.webkitExitFullscreen).call(document);
             }
         }
     </script>

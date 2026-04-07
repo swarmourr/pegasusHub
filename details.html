@@ -3,120 +3,277 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>PegasusHub | Workflow Intelligence</title>
-    
+    <title>PegasusHub | Workflow Details</title>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
 
     <style>
         :root {
-            /* DARK DEFAULT */
-            --bg: #020617; --surface: #0f172a; --border: rgba(148, 163, 184, 0.1);
-            --primary: #22d3ee; --primary-glow: rgba(34, 211, 238, 0.6);
-            --text-main: #f8fafc; --text-muted: #94a3b8;
-            --glass: rgba(15, 23, 42, 0.9);
+            --bg: #020617; --surface: #0f172a; --surface2: #1e293b;
+            --border: rgba(148,163,184,0.1); --border2: rgba(148,163,184,0.18);
+            --primary: #22d3ee; --primary-glow: rgba(34,211,238,0.15);
+            --text-main: #f8fafc; --text-muted: #94a3b8; --text-dim: #475569;
+            --glass: rgba(15,23,42,0.92);
+            --indigo: #818cf8; --violet: #a78bfa;
         }
-        /* LIGHT OVERRIDES */
         body.light-mode {
-            --bg: #f8fafc; --surface: #ffffff; --border: #cbd5e1;
-            --primary: #0284c7; --primary-glow: rgba(2, 132, 199, 0.4);
-            --text-main: #0f172a; --text-muted: #475569;
-            --glass: rgba(255, 255, 255, 0.9);
+            --bg: #f1f5f9; --surface: #ffffff; --surface2: #f8fafc;
+            --border: #e2e8f0; --border2: #cbd5e1;
+            --primary: #0284c7; --primary-glow: rgba(2,132,199,0.1);
+            --text-main: #0f172a; --text-muted: #475569; --text-dim: #94a3b8;
+            --glass: rgba(255,255,255,0.95);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main);
-            min-height: 100vh; line-height: 1.6;
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Plus Jakarta Sans',sans-serif; background:var(--bg); color:var(--text-main); min-height:100vh; line-height:1.6; }
+
+        /* ── Progress Bar ── */
+        #progress-bar { position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg,var(--primary),var(--indigo)); width:0%; z-index:9999; transition:width 0.1s; }
+
+        /* ── Nav ── */
+        nav {
+            height:64px; padding:0 6%; background:var(--glass); backdrop-filter:blur(16px);
+            border-bottom:1px solid var(--border); display:flex; justify-content:space-between;
+            align-items:center; position:sticky; top:0; z-index:1000;
         }
+        .nav-logo { font-weight:800; font-size:1.25rem; text-decoration:none; color:var(--text-main); letter-spacing:-1px; display:flex; align-items:center; gap:8px; }
+        .nav-logo i { color:var(--primary); font-size:1.2rem; }
+        .nav-logo span { color:var(--primary); }
+        .nav-right { display:flex; gap:10px; align-items:center; }
+        .btn-back { display:flex; align-items:center; gap:6px; color:var(--text-muted); text-decoration:none; font-size:0.78rem; font-weight:700; padding:7px 14px; border:1px solid var(--border); border-radius:8px; transition:0.2s; letter-spacing:0.3px; }
+        .btn-back:hover { color:var(--primary); border-color:var(--primary); background:var(--primary-glow); }
+        .theme-toggle { background:transparent; border:1px solid var(--border); color:var(--text-muted); width:34px; height:34px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s; }
+        .theme-toggle:hover { color:var(--primary); border-color:var(--primary); }
 
-        nav { height: 75px; padding: 0 8%; background: var(--glass); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .nav-logo { font-weight: 800; font-size: 1.2rem; text-decoration: none; color: var(--text-main); letter-spacing: -1px; }
-        .nav-logo span { color: var(--primary); }
-
-        .theme-toggle { background: transparent; border: 1px solid var(--border); color: var(--text-muted); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .theme-toggle:hover { color: var(--primary); border-color: var(--primary); }
-
-        .container { max-width: 1300px; margin: 60px auto; padding: 0 40px; display: grid; grid-template-columns: 1fr 340px; gap: 60px; }
-
-        /* Typography */
-        #wf-content h1 { font-size: 3rem; font-weight: 800; letter-spacing: -2px; margin-bottom: 10px; }
-        #wf-content h2 { font-size: 1rem; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin: 40px 0 15px; border-left: 3px solid var(--primary); padding-left: 15px; }
-        pre { background: #0f172a; border: 1px solid var(--border); padding: 20px; border-radius: 12px; margin: 25px 0; overflow-x: auto; }
-        code { font-family: 'JetBrains Mono', monospace; color: #cbd5e1; }
-
-        /* VIZ TERMINAL (Always Dark for Aesthetic) */
-        .viz-terminal {
-            background: #000; border: 1px solid var(--border); border-radius: 16px;
-            margin: 40px 0; overflow: hidden; box-shadow: 0 20px 50px -10px rgba(0,0,0,0.5);
+        /* ── Hero ── */
+        .hero {
+            background:linear-gradient(180deg, rgba(34,211,238,0.04) 0%, transparent 100%);
+            border-bottom:1px solid var(--border);
+            padding:52px 6% 44px;
         }
-        .term-header { background: #0f172a; padding: 10px 20px; border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; }
-        .dot-group { display: flex; gap: 6px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; background: #334155; }
-        #viz-target { padding: 40px; display: flex; justify-content: center; background: #050a15; min-height: 250px; }
-        #viz-target svg { width: 100%; height: auto; max-width: 650px; }
-        #viz-target img { max-width: 100%; border-radius: 8px; border: 1px solid #1e293b; }
+        .hero-inner { max-width:1200px; margin:0 auto; }
+        .hero-breadcrumb { display:flex; align-items:center; gap:8px; font-size:0.72rem; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:20px; }
+        .hero-breadcrumb a { color:var(--text-dim); text-decoration:none; }
+        .hero-breadcrumb a:hover { color:var(--primary); }
+        .hero-breadcrumb i { font-size:0.6rem; }
 
-        /* Animation */
-        .edge path { stroke: #1e293b !important; stroke-width: 1.5px !important; opacity: 0.5; fill: none !important; }
-        .bullet {
-            fill: none !important; stroke: #22d3ee !important; stroke-width: 4px !important;
-            stroke-linecap: round; stroke-dasharray: 1, 100;
-            animation: flow 3s linear infinite; filter: drop-shadow(0 0 8px #22d3ee);
-            visibility: visible !important; pointer-events: none;
+        .hero-badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+        .badge { display:inline-flex; align-items:center; gap:5px; font-size:0.7rem; font-weight:700; padding:5px 13px; border-radius:99px; letter-spacing:0.5px; }
+        /* Tag color palette — cycle through these */
+        .tag-0 { background:rgba(34,211,238,0.12);  color:#22d3ee; border:1px solid rgba(34,211,238,0.3); }
+        .tag-1 { background:rgba(129,140,248,0.12); color:#818cf8; border:1px solid rgba(129,140,248,0.3); }
+        .tag-2 { background:rgba(167,139,250,0.12); color:#a78bfa; border:1px solid rgba(167,139,250,0.3); }
+        .tag-3 { background:rgba(74,222,128,0.12);  color:#4ade80; border:1px solid rgba(74,222,128,0.3); }
+        .tag-4 { background:rgba(251,146,60,0.12);  color:#fb923c; border:1px solid rgba(251,146,60,0.3); }
+        .tag-5 { background:rgba(244,114,182,0.12); color:#f472b6; border:1px solid rgba(244,114,182,0.3); }
+        .tag-6 { background:rgba(251,191,36,0.12);  color:#fbbf24; border:1px solid rgba(251,191,36,0.3); }
+        .badge-ver  { background:rgba(129,140,248,0.1); color:var(--indigo); border:1px solid rgba(129,140,248,0.25); }
+        .badge-date { background:rgba(148,163,184,0.08); color:var(--text-muted); border:1px solid var(--border2); }
+
+        /* Description block */
+        .hero-desc-block {
+            margin-top:20px; padding:18px 22px;
+            background:rgba(34,211,238,0.04); border:1px solid rgba(34,211,238,0.12);
+            border-left:3px solid var(--primary); border-radius:0 14px 14px 0;
         }
-        @keyframes flow { 0% { stroke-dashoffset: 200; } 100% { stroke-dashoffset: 0; } }
+        .hero-desc-label { font-size:0.65rem; font-weight:800; color:var(--primary); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; }
+        .hero-desc-text { font-size:1rem; color:var(--text-muted); line-height:1.75; }
 
-        /* Sidebar */
-        .sidebar-card { background: var(--surface); border: 1px solid var(--border); padding: 24px; border-radius: 20px; margin-bottom: 24px; }
-        .sidebar-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px; display: block; }
-        .btn-primary { display: block; width: 100%; padding: 14px; background: var(--primary); color: #fff; text-align: center; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 0.85rem; }
-        .tree-node { font-family: 'JetBrains Mono'; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; }
-        .avatar-stack img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--surface); margin-right: -8px; }
+        .hero-title {
+            font-size:2.8rem; font-weight:800; letter-spacing:-2.5px; line-height:1.15; margin-bottom:14px;
+            background:linear-gradient(135deg, var(--text-main) 30%, var(--primary) 100%);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+        }
+        .hero-desc { font-size:1.05rem; color:var(--text-muted); max-width:680px; line-height:1.7; }
 
-        @media (max-width: 1000px) { .container { grid-template-columns: 1fr; } }
+        .hero-meta { display:flex; flex-wrap:wrap; gap:20px; margin-top:28px; padding-top:24px; border-top:1px solid var(--border); }
+        .meta-item { display:flex; align-items:center; gap:8px; }
+        .meta-item i { color:var(--primary); font-size:0.85rem; width:16px; text-align:center; }
+        .meta-item span { font-size:0.8rem; color:var(--text-muted); }
+        .meta-item strong { font-size:0.8rem; color:var(--text-main); font-weight:700; margin-left:2px; }
+
+        /* ── Layout ── */
+        .layout { max-width:1200px; margin:0 auto; padding:48px 6% 80px; display:grid; grid-template-columns:1fr 300px; gap:48px; align-items:start; }
+
+        /* ── Content ── */
+        #wf-content { font-size:1.03rem; line-height:1.85; color:var(--text-main); }
+        #wf-content h1 { font-size:2rem; font-weight:800; letter-spacing:-1.5px; margin:0 0 16px; }
+        #wf-content h2 { font-size:1rem; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:2px; margin:48px 0 18px; border-left:3px solid var(--primary); padding-left:15px; }
+        #wf-content h3 { font-size:1rem; font-weight:700; color:var(--text-main); margin:32px 0 12px; }
+        #wf-content p { margin-bottom:18px; color:var(--text-muted); }
+        #wf-content strong { color:var(--text-main); font-weight:700; }
+        #wf-content a { color:var(--primary); text-decoration:none; border-bottom:1px solid transparent; transition:border-color 0.2s; }
+        #wf-content a:hover { border-bottom-color:var(--primary); }
+        /* Inline code */
+        #wf-content code { font-family:'JetBrains Mono',monospace; font-size:0.82em; background:var(--surface2); color:var(--primary); padding:2px 8px; border-radius:6px; border:1px solid var(--border); }
+
+        /* Code blocks */
+        #wf-content pre {
+            position:relative; margin:24px 0; border-radius:12px;
+            border:1px solid var(--border); background:var(--surface);
+            padding:20px 22px; overflow-x:auto;
+        }
+        #wf-content pre code { background:none; border:none; padding:0; color:var(--text-muted); font-size:0.83rem; line-height:1.85; font-family:'JetBrains Mono',monospace; }
+        .pre-copy {
+            position:absolute; top:10px; right:12px;
+            background:var(--surface2); border:1px solid var(--border);
+            cursor:pointer; color:var(--text-dim); font-size:0.68rem; font-weight:700;
+            display:flex; align-items:center; gap:4px; padding:3px 9px; border-radius:6px;
+            transition:all 0.2s; font-family:'Plus Jakarta Sans',sans-serif;
+        }
+        .pre-copy:hover { color:var(--primary); border-color:var(--primary); }
+        #wf-content ul { list-style:none; padding:0; margin:18px 0 24px; }
+        #wf-content ul li { padding:6px 0 6px 24px; position:relative; color:var(--text-muted); }
+        #wf-content ul li::before { content:''; position:absolute; left:0; top:50%; transform:translateY(-50%); width:8px; height:8px; border-radius:50%; background:var(--primary); box-shadow:0 0 6px var(--primary); }
+        #wf-content ol.card-grid { list-style:none; padding:0; margin:28px 0; display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; counter-reset:card-count; }
+        #wf-content ol.card-grid li { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 16px; counter-increment:card-count; color:var(--text-muted); transition:border-color 0.2s,transform 0.2s; }
+        #wf-content ol.card-grid li:hover { border-color:var(--primary); transform:translateY(-2px); }
+        #wf-content ol.card-grid li::before { content:counter(card-count); display:flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:7px; background:var(--primary); color:#000; font-weight:800; font-size:0.72rem; margin-bottom:10px; }
+        #wf-content ol:not(.card-grid) { padding-left:0; margin:18px 0 24px; list-style:none; counter-reset:ol-counter; }
+        #wf-content ol:not(.card-grid) li { counter-increment:ol-counter; padding:5px 0 5px 32px; position:relative; color:var(--text-muted); }
+        #wf-content ol:not(.card-grid) li::before { content:counter(ol-counter); position:absolute; left:0; top:5px; width:20px; height:20px; border-radius:6px; background:rgba(34,211,238,0.12); color:var(--primary); font-size:0.7rem; font-weight:800; font-family:'JetBrains Mono'; display:flex; align-items:center; justify-content:center; }
+        #wf-content blockquote { margin:28px 0; padding:18px 22px; background:rgba(34,211,238,0.05); border-left:4px solid var(--primary); border-radius:0 12px 12px 0; color:var(--text-muted); font-style:italic; }
+        #wf-content img { display:block; max-width:100%; margin:28px auto; border-radius:12px; border:1px solid var(--border); box-shadow:0 8px 30px rgba(0,0,0,0.3); }
+        #wf-content table { width:100%; border-collapse:collapse; margin:28px 0; font-size:0.88rem; }
+        #wf-content th { background:var(--surface); color:var(--primary); font-weight:700; font-size:0.72rem; text-transform:uppercase; letter-spacing:1px; padding:12px 16px; text-align:left; border-bottom:2px solid var(--border2); }
+        #wf-content td { padding:12px 16px; border-bottom:1px solid var(--border); color:var(--text-muted); vertical-align:top; }
+        #wf-content tr:hover td { background:rgba(34,211,238,0.03); }
+        #wf-content hr { border:none; border-top:1px solid var(--border); margin:40px 0; }
+
+        /* Loading skeleton */
+        .skeleton { animation:shimmer 1.6s infinite linear; background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%); background-size:200% 100%; border-radius:8px; }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+
+        /* ── Sidebar ── */
+        .sidebar { position:sticky; top:80px; display:flex; flex-direction:column; gap:16px; }
+        .s-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+        .s-card-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+        .s-card-header i { color:var(--primary); font-size:0.85rem; }
+        .s-card-header span { font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-muted); }
+        .s-card-body { padding:16px 18px; }
+
+        .btn-repo { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:12px; background:var(--primary); color:#000; text-align:center; text-decoration:none; border-radius:10px; font-weight:800; font-size:0.8rem; letter-spacing:0.5px; transition:opacity 0.2s; }
+        .btn-repo:hover { opacity:0.85; }
+
+        .tree-node { display:flex; align-items:center; gap:8px; font-family:'JetBrains Mono'; font-size:0.75rem; color:var(--text-muted); padding:5px 0; border-bottom:1px solid var(--border); }
+        .tree-node:last-child { border:none; }
+        .tree-node i { color:var(--primary); font-size:0.7rem; width:12px; }
+
+        .avatar-stack { display:flex; align-items:center; }
+        .avatar-stack img { width:34px; height:34px; border-radius:50%; border:2px solid var(--surface); margin-right:-10px; transition:transform 0.2s; }
+        .avatar-stack img:hover { transform:translateY(-3px); z-index:1; }
+
+        .meta-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:0.82rem; }
+        .meta-row:last-child { border:none; }
+        .meta-row .key { color:var(--text-dim); display:flex; align-items:center; gap:6px; }
+        .meta-row .key i { font-size:0.75rem; color:var(--primary); }
+        .meta-row .val { font-weight:700; color:var(--text-main); font-family:'JetBrains Mono'; font-size:0.78rem; }
+
+        @media(max-width:960px){ .layout{grid-template-columns:1fr;} .sidebar{position:static;} .hero-title{font-size:2rem;} }
     </style>
 </head>
 <body>
 
+<div id="progress-bar"></div>
+
 <nav>
-    <a href="index.html" class="nav-logo">PEGASUS<span>HUB</span></a>
-    <div style="display:flex; gap:15px; align-items:center;">
+    <a href="index.html" class="nav-logo">
+        <i class="fas fa-layer-group"></i>PEGASUS<span>HUB</span>
+    </a>
+    <div class="nav-right">
+        <a href="registry.html" class="btn-back"><i class="fas fa-arrow-left"></i> Workflows</a>
         <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
-        <a href="index.html" style="color:var(--text-muted); text-decoration:none; font-size:0.8rem; font-weight:700;">BACK</a>
     </div>
 </nav>
 
-<div class="container">
-    <main>
-        <article id="wf-content">Loading Protocol...</article>
-        
-        <div class="viz-terminal" id="viz-box" style="display:none;">
-            <div class="term-header">
-                <div class="dot-group"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-                <div id="viz-title" style="font-size:0.65rem; color:#64748b; font-family:'JetBrains Mono'">active_stream</div>
-            </div>
-            <div id="viz-target"></div>
+<!-- Hero -->
+<div class="hero">
+    <div class="hero-inner">
+        <div class="hero-breadcrumb">
+            <a href="registry.html">Workflows</a>
+            <i class="fas fa-chevron-right"></i>
+            <span id="hero-id-label">Loading...</span>
         </div>
+        <div class="hero-badges" id="hero-badges">
+            <span class="badge badge-ver" id="hero-ver" style="display:none"><i class="fas fa-code-branch"></i> v<span id="hero-ver-text"></span></span>
+            <span class="badge badge-date" id="hero-date" style="display:none"><i class="fas fa-calendar-check"></i> Verified <span id="hero-date-text"></span></span>
+        </div>
+        <h1 class="hero-title" id="hero-title">Loading workflow...</h1>
+        <div class="hero-desc-block" id="hero-desc-block" style="display:none">
+            <div class="hero-desc-label"><i class="fas fa-align-left" style="margin-right:6px;"></i>Description</div>
+            <div class="hero-desc-text" id="hero-desc"></div>
+        </div>
+        <div class="hero-meta" id="hero-meta" style="display:none">
+            <div class="meta-item" id="meta-license" style="display:none">
+                <i class="fas fa-shield-alt"></i>
+                <span>License</span><strong id="meta-license-text"></strong>
+            </div>
+            <div class="meta-item" id="meta-repo" style="display:none">
+                <i class="fab fa-github"></i>
+                <span>Repository</span><strong id="meta-repo-text"></strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Layout -->
+<div class="layout">
+    <main>
+        <article id="wf-content"></article>
+
     </main>
 
-    <aside>
-        <div class="sidebar-card">
-            <span class="sidebar-label">Source</span>
-            <div id="tree-box" style="margin-bottom:20px;">Fetching tree...</div>
-            <a href="#" id="gh-link" target="_blank" class="btn-primary">VIEW REPO</a>
-        </div>
-        <div class="sidebar-card">
-            <span class="sidebar-label">Contributors</span>
-            <div class="avatar-stack" id="contrib-stack"></div>
-        </div>
-        <div class="sidebar-card" style="font-size: 0.8rem;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                <span style="color:var(--text-muted)">Version</span><span id="m-ver">--</span>
+    <aside class="sidebar">
+        <!-- Repo card -->
+        <div class="s-card">
+            <div class="s-card-header"><i class="fab fa-github"></i><span>Repository</span></div>
+            <div class="s-card-body">
+                <div id="tree-box" style="margin-bottom:14px;">
+                    <div class="skeleton" style="height:14px;margin-bottom:8px;"></div>
+                    <div class="skeleton" style="height:14px;margin-bottom:8px;width:80%;"></div>
+                    <div class="skeleton" style="height:14px;width:60%;"></div>
+                </div>
+                <a href="#" id="gh-link" target="_blank" class="btn-repo">
+                    <i class="fas fa-external-link-alt"></i> View Repository
+                </a>
             </div>
-            <div style="display:flex; justify-content:space-between;">
-                <span style="color:var(--text-muted)">Verified</span><span id="m-date">--</span>
+        </div>
+
+        <!-- Contributors -->
+        <div class="s-card">
+            <div class="s-card-header"><i class="fas fa-users"></i><span>Contributors</span></div>
+            <div class="s-card-body">
+                <div class="avatar-stack" id="contrib-stack">
+                    <div class="skeleton" style="width:34px;height:34px;border-radius:50%;margin-right:-10px;"></div>
+                    <div class="skeleton" style="width:34px;height:34px;border-radius:50%;margin-right:-10px;"></div>
+                    <div class="skeleton" style="width:34px;height:34px;border-radius:50%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metadata -->
+        <div class="s-card">
+            <div class="s-card-header"><i class="fas fa-info-circle"></i><span>Details</span></div>
+            <div class="s-card-body">
+                <div class="meta-row">
+                    <span class="key"><i class="fas fa-code-branch"></i> Version</span>
+                    <span class="val" id="m-ver">--</span>
+                </div>
+                <div class="meta-row">
+                    <span class="key"><i class="fas fa-calendar-check"></i> Verified</span>
+                    <span class="val" id="m-date">--</span>
+                </div>
+                <div class="meta-row" id="row-license" style="display:none">
+                    <span class="key"><i class="fas fa-shield-alt"></i> License</span>
+                    <span class="val" id="m-license">--</span>
+                </div>
+                <div class="meta-row" id="row-topic" style="display:none">
+                    <span class="key"><i class="fas fa-tag"></i> Topic</span>
+                    <span class="val" id="m-topic">--</span>
+                </div>
             </div>
         </div>
     </aside>
@@ -125,121 +282,173 @@
 <script>
     const md = window.markdownit({ html: true });
 
+    window.addEventListener('scroll', () => {
+        const d = document.documentElement;
+        document.getElementById('progress-bar').style.width = (d.scrollTop / (d.scrollHeight - d.clientHeight) * 100) + '%';
+    });
+
+    function styleCodeBlocks(container) {
+        container.querySelectorAll('pre').forEach(pre => {
+            const btn = document.createElement('button');
+            btn.className = 'pre-copy';
+            btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+            btn.onclick = () => {
+                const text = pre.querySelector('code')?.innerText || '';
+                navigator.clipboard.writeText(text).then(() => {
+                    btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+                    btn.style.color = '#4ade80';
+                    setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i> Copy'; btn.style.color = ''; }, 2000);
+                });
+            };
+            pre.appendChild(btn);
+        });
+    }
+
+    function olToCards(container) {
+        container.querySelectorAll('ol').forEach(ol => {
+            if (ol.children.length >= 2) {
+                ol.classList.add('card-grid');
+                ol.style.counterReset = 'card-count';
+            }
+        });
+    }
+
     async function init() {
-        // 1. Theme Check
         const saved = localStorage.getItem('theme');
         if (saved === 'light') {
             document.body.classList.add('light-mode');
             document.querySelector('.theme-toggle i').classList.replace('fa-moon', 'fa-sun');
         }
 
-        // 2. Load Content
         const params = new URLSearchParams(window.location.search);
         const id = params.get('id') || 'diamond-workflow';
 
+        document.getElementById('hero-id-label').textContent = id;
+
+        const WORKFLOWS_INDEX = 'https://raw.githubusercontent.com/swarmourr/Pegasus-Hub/refs/heads/main/data/workflows.json';
+
         try {
-            const res = await fetch(`https://raw.githubusercontent.com/swarmourr/Pegasus-Hub/refs/heads/main/${id}.md`);
-            if (!res.ok) throw new Error("File not found");
-            const raw = await res.text();
-            
+            const [indexRes, mdRes] = await Promise.all([
+                fetch(WORKFLOWS_INDEX),
+                fetch(`https://raw.githubusercontent.com/swarmourr/Pegasus-Hub/refs/heads/main/${id}.md`)
+            ]);
+
+            if (!mdRes.ok) throw new Error('File not found');
+
+            const indexData = await indexRes.json();
+            const meta = (indexData.workflows || []).find(w => w.id === id) || {};
+
+            const raw = await mdRes.text();
             const parts = raw.split('---');
-            if (parts.length < 3) throw new Error("Invalid Markdown");
-            const yaml = parts[1];
-            let body = parts[2];
+            let body = parts.length >= 3 ? parts.slice(2).join('---') : raw;
 
-            const meta = {};
-            yaml.trim().split('\n').forEach(l => {
-                const [k, ...v] = l.split(':');
-                if(k && v) meta[k.trim().toLowerCase()] = v.join(':').trim().replace(/['"]/g, '');
-            });
+            // ── Populate Hero ──
+            const title = meta.name || id;
+            document.title = `PegasusHub | ${title}`;
+            document.getElementById('hero-title').textContent = title;
+            document.getElementById('hero-id-label').textContent = title;
 
-            // Populate Info
-            document.getElementById('m-ver').innerText = meta.pegasus_version || '5.0';
-            document.getElementById('m-date').innerText = meta.last_verified || '2026';
+            if (meta.description) {
+                document.getElementById('hero-desc').textContent = meta.description;
+                document.getElementById('hero-desc-block').style.display = 'block';
+            }
+
+            // Multi-color tags — split by comma or semicolon
+            if (meta.topic) {
+                const tags = meta.topic.split(/[,;]/).map(t => t.trim()).filter(Boolean);
+                const badgesEl = document.getElementById('hero-badges');
+                tags.forEach((tag, i) => {
+                    const s = document.createElement('span');
+                    s.className = `badge tag-${i % 7}`;
+                    s.innerHTML = `<i class="fas fa-tag"></i> ${tag}`;
+                    badgesEl.prepend(s);
+                });
+                // sidebar topic
+                document.getElementById('m-topic').textContent = tags.join(', ');
+                document.getElementById('row-topic').style.display = 'flex';
+            }
+            if (meta.pegasus_version) {
+                document.getElementById('hero-ver-text').textContent = meta.pegasus_version;
+                document.getElementById('hero-ver').style.display = 'inline-flex';
+            }
+            if (meta.last_verified) {
+                document.getElementById('hero-date-text').textContent = meta.last_verified;
+                document.getElementById('hero-date').style.display = 'inline-flex';
+            }
+            if (meta.license) {
+                document.getElementById('meta-license-text').textContent = meta.license;
+                document.getElementById('meta-license').style.display = 'flex';
+                document.getElementById('hero-meta').style.display = 'flex';
+                document.getElementById('m-license').textContent = meta.license;
+                document.getElementById('row-license').style.display = 'flex';
+            }
+            if (meta.topic) {
+                document.getElementById('m-topic').textContent = meta.topic;
+                document.getElementById('row-topic').style.display = 'flex';
+            }
+
+            // ── Sidebar Metadata ──
+            document.getElementById('m-ver').textContent = meta.pegasus_version || '5.0';
+            document.getElementById('m-date').textContent = meta.last_verified || '2026';
             document.getElementById('gh-link').href = meta.github_repo || '#';
 
             if (meta.github_repo && meta.github_repo.includes('github.com')) {
-                const p = new URL(meta.github_repo).pathname.split('/').filter(x=>x);
-                fetchGitHub(p[0], p[1]);
+                const repoPath = new URL(meta.github_repo).pathname.split('/').filter(x => x);
+                document.getElementById('meta-repo-text').textContent = repoPath.slice(0, 2).join('/');
+                document.getElementById('meta-repo').style.display = 'flex';
+                document.getElementById('hero-meta').style.display = 'flex';
+                fetchGitHub(repoPath[0], repoPath[1]);
             }
 
-            // Detect Visualization (Code Block OR Image Path)
-            const codeRegex = /```[\s\S]*?\n([\s\S]*?)```/g;
-            let match, foundViz = false;
-            
-            while ((match = codeRegex.exec(body)) !== null) {
-                if (match[1].includes('<svg')) {
-                    renderViz(match[1], 'svg');
-                    body = body.replace(match[0], ''); 
-                    foundViz = true; 
-                    break;
+            // Strip SVG code blocks entirely
+            body = body.replace(/```[^\n]*\n[\s\S]*?<svg[\s\S]*?```/gi, '');
+            // Strip inline SVG tags
+            body = body.replace(/<svg[\s\S]*?<\/svg>/gi, '');
+
+            // ── Render Body ──
+            const wfEl = document.getElementById('wf-content');
+            wfEl.innerHTML = md.render(body);
+
+            // Resolve relative image paths to raw GitHub URLs
+            const rawBase = `https://raw.githubusercontent.com/swarmourr/Pegasus-Hub/refs/heads/main/`;
+            wfEl.querySelectorAll('img').forEach(img => {
+                const src = img.getAttribute('src') || '';
+                if (src && !src.startsWith('http') && !src.startsWith('data:')) {
+                    img.src = rawBase + src.replace(/^\.?\/?/, '');
                 }
-            }
+            });
 
-            const imgKey = meta.image || meta.png || meta.viz;
-            if (!foundViz && imgKey) renderViz(imgKey, 'png');
-
-            document.getElementById('wf-content').innerHTML = md.render(body);
+            styleCodeBlocks(wfEl);
+            olToCards(wfEl);
 
         } catch (e) {
-            document.getElementById('wf-content').innerHTML = "<h1>Workflow Offline</h1><p>Data unavailable.</p>";
+            document.getElementById('hero-title').textContent = 'Workflow Offline';
+            document.getElementById('wf-content').innerHTML = '<p>This workflow could not be loaded. It may have moved or is temporarily unavailable.</p>';
         }
     }
 
-    function renderViz(data, type) {
-        const box = document.getElementById('viz-box');
-        const target = document.getElementById('viz-target');
-        box.style.display = 'block';
-        target.innerHTML = '';
-
-        if (type === 'svg') {
-            target.innerHTML = data;
-            const svg = target.querySelector('svg');
-            if(svg) {
-                svg.setAttribute('width', '100%');
-                svg.setAttribute('height', 'auto');
-                // Animation Injection
-                target.querySelectorAll('.edge path').forEach(path => {
-                    const b = path.cloneNode(true);
-                    b.classList.add('bullet');
-                    b.removeAttribute('id');
-                    path.parentNode.appendChild(b);
-                });
-                // Color override for terminal look
-                target.querySelectorAll('text').forEach(t => t.setAttribute('fill', '#94a3b8'));
-                target.querySelectorAll('polygon, ellipse').forEach(p => {
-                    if(p.getAttribute('fill') !== 'transparent') p.setAttribute('fill', '#0f172a');
-                    p.setAttribute('stroke', '#22d3ee');
-                });
-            }
-        } else {
-            const img = document.createElement('img');
-            img.src = data;
-            target.appendChild(img);
-        }
-    }
 
     async function fetchGitHub(owner, repo) {
         try {
             const r1 = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents`);
             const files = await r1.json();
-            document.getElementById('tree-box').innerHTML = files.slice(0,6).map(f => 
-                `<div class="tree-node"><i class="fas ${f.type==='dir'?'fa-folder':'fa-file'}"></i> ${f.name}</div>`
+            document.getElementById('tree-box').innerHTML = files.slice(0, 6).map(f =>
+                `<div class="tree-node"><i class="fas ${f.type === 'dir' ? 'fa-folder' : 'fa-file-code'}"></i>${f.name}</div>`
             ).join('');
 
-            const r2 = await fetch(`https://api.github.com/repos/${owner}/${repo}/contributors?per_page=5`);
+            const r2 = await fetch(`https://api.github.com/repos/${owner}/${repo}/contributors?per_page=6`);
             const users = await r2.json();
-            document.getElementById('contrib-stack').innerHTML = users.map(u => 
-                `<img src="${u.avatar_url}" title="${u.login}">`
+            document.getElementById('contrib-stack').innerHTML = users.map(u =>
+                `<img src="${u.avatar_url}" title="${u.login}" alt="${u.login}">`
             ).join('');
-        } catch(e) { console.log("GitHub API Limit or Error"); }
+        } catch (e) { console.log('GitHub API limit or error'); }
     }
 
     function toggleTheme() {
         const b = document.body;
         const i = document.querySelector('.theme-toggle i');
         b.classList.toggle('light-mode');
-        if(b.classList.contains('light-mode')) {
+        if (b.classList.contains('light-mode')) {
             localStorage.setItem('theme', 'light');
             i.classList.replace('fa-moon', 'fa-sun');
         } else {
