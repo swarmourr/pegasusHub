@@ -499,30 +499,82 @@
     }
 
 
-    async function fetchGitHub(owner, repo) {
+    const FALLBACK_HTML = `
+        <div style="text-align:center;padding:12px 0;color:var(--text-dim);font-size:0.78rem;">
+            <i class="fas fa-clock" style="margin-bottom:6px;display:block;font-size:1.2rem;"></i>
+            Data not available currently.
+        </div>`;
+
+    const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
+
+    function ghCache(key) {
         try {
-            const r1 = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents`);
-            const files = await r1.json();
+            const raw = localStorage.getItem('gh_' + key);
+            if (!raw) return null;
+            const { data, ts } = JSON.parse(raw);
+            if (Date.now() - ts > CACHE_TTL) { localStorage.removeItem('gh_' + key); return null; }
+            return data;
+        } catch { return null; }
+    }
+
+    function ghCacheSet(key, data) {
+        try { localStorage.setItem('gh_' + key, JSON.stringify({ data, ts: Date.now() })); } catch {}
+    }
+
+    function applyFiles(files) {
+        if (Array.isArray(files) && files.length) {
             document.getElementById('tree-box').innerHTML = files.slice(0, 6).map(f =>
                 `<div class="tree-node"><i class="fas ${f.type === 'dir' ? 'fa-folder' : 'fa-file-code'}"></i>${f.name}</div>`
             ).join('');
+        } else {
+            document.getElementById('tree-box').innerHTML = FALLBACK_HTML;
+        }
+    }
 
-            const r2 = await fetch(`https://api.github.com/repos/${owner}/${repo}/contributors?per_page=6`);
-            const users = await r2.json();
+    function applyContribs(users) {
+        if (Array.isArray(users) && users.length) {
             document.getElementById('contrib-stack').innerHTML = users.map(u =>
                 `<img src="${u.avatar_url}" title="${u.login}" alt="${u.login}">`
             ).join('');
+        } else {
+            document.getElementById('contrib-stack').innerHTML = FALLBACK_HTML;
+        }
+    }
+
+    async function fetchGitHub(owner, repo) {
+        const cacheKey = `${owner}_${repo}`;
+
+        // Serve from cache if fresh
+        const cachedFiles = ghCache(cacheKey + '_files');
+        const cachedUsers = ghCache(cacheKey + '_users');
+        if (cachedFiles) applyFiles(cachedFiles);
+        if (cachedUsers) applyContribs(cachedUsers);
+        if (cachedFiles && cachedUsers) return; // fully cached, no API call
+
+        try {
+            const toFetch = [];
+            if (!cachedFiles) toFetch.push(fetch(`https://api.github.com/repos/${owner}/${repo}/contents`));
+            if (!cachedUsers) toFetch.push(fetch(`https://api.github.com/repos/${owner}/${repo}/contributors?per_page=6`));
+
+            const results = await Promise.all(toFetch);
+            let idx = 0;
+
+            if (!cachedFiles) {
+                const r1 = results[idx++];
+                const files = r1.ok ? await r1.json() : [];
+                ghCacheSet(cacheKey + '_files', files);
+                applyFiles(files);
+            }
+            if (!cachedUsers) {
+                const r2 = results[idx++];
+                const users = r2.ok ? await r2.json() : [];
+                ghCacheSet(cacheKey + '_users', users);
+                applyContribs(users);
+            }
+
         } catch (e) {
-            document.getElementById('tree-box').innerHTML = `
-                <div style="text-align:center; padding:12px 0; color:var(--text-dim); font-size:0.78rem;">
-                    <i class="fas fa-clock" style="margin-bottom:6px; display:block; font-size:1.2rem;"></i>
-                    Data not available currently.
-                </div>`;
-            document.getElementById('contrib-stack').innerHTML = `
-                <div style="text-align:center; padding:12px 0; color:var(--text-dim); font-size:0.78rem;">
-                    <i class="fas fa-clock" style="margin-bottom:6px; display:block; font-size:1.2rem;"></i>
-                    Data not available currently.
-                </div>`;
+            if (!cachedFiles) document.getElementById('tree-box').innerHTML = FALLBACK_HTML;
+            if (!cachedUsers) document.getElementById('contrib-stack').innerHTML = FALLBACK_HTML;
         }
     }
 
