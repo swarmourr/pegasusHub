@@ -138,7 +138,7 @@
         const id = params.get('id') || 'diamond-workflow';
 
         try {
-            const res = await fetch(`workflows/${id}.md`);
+            const res = await fetch(`https://raw.githubusercontent.com/swarmourr/Pegasus-Hub/refs/heads/main/${id}.md`);
             if (!res.ok) throw new Error("File not found");
             const raw = await res.text();
             

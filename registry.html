@@ -1,0 +1,378 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PegasusHub | Scientific Registry</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* DARK THEME (Default) */
+            --bg: #355872;
+            --surface: rgba(30, 41, 59, 0.4);
+            --border: rgba(148, 163, 184, 0.1);
+            --primary: #22d3ee;
+            --primary-glow: rgba(34, 211, 238, 0.2);
+            --secondary: #9CD5FF;
+            --secondary-glow: rgba(129, 140, 248, 0.2);
+            --text-main: #ffffff;
+            --text-muted: #9CD5FF;
+            --glass: rgba(2, 6, 23, 0.8);
+            --grad: radial-gradient(circle at 50% -20%, rgba(129, 140, 248, 0.15) 0%, transparent 50%);
+        }
+
+        /* LIGHT THEME OVERRIDES */
+        body.light-mode {
+            --bg: #f8fafc;
+            --surface: rgba(255, 255, 255, 0.7);
+            --border: #e2e8f0;
+            --primary: #0284c7;
+            --primary-glow: rgba(2, 132, 199, 0.1);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --glass: rgba(255, 255, 255, 0.8);
+            --grad: radial-gradient(circle at 50% -20%, rgba(2, 132, 199, 0.08) 0%, transparent 60%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s; }
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg); 
+            color: var(--text-main);
+            background-image: var(--grad);
+            background-attachment: fixed;
+            min-height: 100vh; 
+            line-height: 1.6;
+        }
+
+        /* --- ROADMAP NAVBAR (CENTERED & 5 ITEMS) --- */
+        nav { 
+            height: 80px; padding: 0 5%; background: var(--glass); 
+            backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); 
+            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; 
+            position: sticky; top: 0; z-index: 1000; 
+        }
+
+        .nav-left { display: flex; align-items: center; justify-content: flex-start; }
+        .nav-center { display: flex; align-items: center; justify-content: center; }
+        .nav-right { display: flex; align-items: center; justify-content: flex-end; gap: 20px; }
+
+        .nav-logo { font-weight: 800; font-size: 1.3rem; text-decoration: none; color: var(--text-main); letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
+        .nav-logo i, .nav-logo span { color: var(--primary); }
+
+        .nav-links { display: flex; align-items: center; list-style: none; margin: 0; padding: 0; }
+        .nav-item { display: flex; align-items: center; position: relative; }
+        
+        .nav-item:not(:last-child)::after {
+            content: ''; width: 25px; height: 2px; background: var(--border); 
+            margin: 0 10px; transition: 0.3s;
+        }
+        .nav-item:hover:not(:last-child)::after, .nav-item.active-path:not(:last-child)::after { 
+            background: var(--primary); box-shadow: 0 0 10px var(--primary-glow); 
+        }
+
+        .nav-link { 
+            display: flex; align-items: center; gap: 8px; color: var(--text-muted); 
+            text-decoration: none; font-weight: 700; font-size: 0.8rem; 
+            text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
+        }
+        
+        .nav-link i { 
+            background: var(--surface); border: 1px solid var(--border);
+            width: 34px; height: 34px; border-radius: 50%; display: flex; 
+            align-items: center; justify-content: center; color: var(--primary); 
+            transition: 0.3s; font-size: 0.85rem;
+        }
+        
+        .nav-link:hover { color: var(--text-main); }
+        .nav-link:hover i, .nav-link.active i { 
+            background: var(--primary-glow); border-color: var(--primary); 
+            transform: scale(1.1); box-shadow: 0 0 15px var(--primary-glow); color: var(--text-main);
+        }
+        .nav-link.active { color: var(--text-main); }
+
+        .theme-toggle {
+            background: var(--surface); border: 1px solid var(--border); color: var(--text-muted);
+            width: 42px; height: 42px; border-radius: 12px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .theme-toggle:hover { color: var(--primary); border-color: var(--primary); }
+
+        @media (max-width: 1100px) {
+            nav { grid-template-columns: 1fr; gap: 15px; justify-items: center; height: auto; padding: 20px 5%; }
+            .nav-left, .nav-center, .nav-right { justify-content: center; }
+            .nav-links { flex-wrap: wrap; justify-content: center; gap: 10px; }
+            .nav-item:not(:last-child)::after { display: none; }
+        }
+
+        /* --- EXPLANATION CARD (PURPOSE) --- */
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
+
+        .about-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 32px;
+            padding: 50px; backdrop-filter: blur(15px); margin-bottom: 40px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center;
+            position: relative; overflow: hidden;
+            animation: fade-up 0.8s forwards; opacity: 0;
+        }
+        .about-card::before {
+            content: ''; position: absolute; top: -50%; left: 50%; transform: translateX(-50%);
+            width: 600px; height: 600px; background: var(--primary-glow); filter: blur(100px); z-index: -1; pointer-events: none;
+        }
+        .topic-badge { 
+            font-size: 0.75rem; font-weight: 800; color: var(--primary); 
+            background: var(--primary-glow); padding: 8px 16px; border-radius: 20px;
+            letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 20px; display: inline-block;
+        }
+        .about-card h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 20px; color: var(--text-main); letter-spacing: -1px; }
+        .about-card p.lead { font-size: 1.15rem; color: rgba(255,255,255,0.85); max-width: 900px; margin: 0 auto; line-height: 1.8; }
+        body.light-mode .about-card p.lead { color: var(--text-main); opacity: 0.8; }
+
+        /* --- SEARCH BAR --- */
+        .search-container {
+            max-width: 500px; margin: 0 auto 60px; position: relative;
+        }
+        .search-input {
+            width: 100%; padding: 18px 24px 18px 50px;
+            border-radius: 16px; border: 1px solid var(--border);
+            background: var(--surface); backdrop-filter: blur(10px);
+            color: var(--text-main); font-size: 1rem; font-family: inherit;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+            outline: none; transition: 0.3s;
+        }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
+        .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        /* --- GRID --- */
+        .grid { max-width: 1400px; margin: 0 auto; padding: 0 40px 100px; display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 30px; }
+
+        .card { 
+            background: var(--surface); border: 1px solid var(--border); border-radius: 24px; 
+            padding: 35px; cursor: pointer; transition: 0.4s cubic-bezier(0.2, 0, 0, 1);
+            display: flex; flex-direction: column; position: relative; overflow: hidden;
+            backdrop-filter: blur(12px); opacity: 0; animation: fade-up 0.6s forwards;
+        }
+        .card:hover { 
+            border-color: var(--primary); transform: translateY(-8px); 
+            box-shadow: 0 20px 50px -10px var(--primary-glow); 
+        }
+        
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .card-icon { font-size: 1.5rem; color: var(--text-muted); opacity: 0.5; }
+
+        .card h3 { font-size: 1.5rem; margin-bottom: 12px; letter-spacing: -0.5px; color: var(--text-main); }
+        .card p { color: var(--text-muted); font-size: 0.95rem; flex-grow: 1; margin-bottom: 30px; line-height: 1.7; }
+
+        .card-footer { 
+            border-top: 1px solid var(--border); padding-top: 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            font-size: 0.8rem; font-weight: 700; color: var(--text-muted);
+        }
+        .card:hover .card-footer { color: var(--primary); }
+        .arrow-btn { transition: 0.3s; transform: translateX(0); }
+        .card:hover .arrow-btn { transform: translateX(5px); }
+
+        /* Animation Keyframes */
+        @keyframes fade-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Footer */
+        footer { border-top: 1px solid var(--border); padding: 60px 0; text-align: center; color: var(--text-muted); font-size: 0.9rem; }
+        .footer-links { display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; }
+        .footer-links a { color: var(--text-muted); text-decoration: none; transition: 0.2s; }
+        .footer-links a:hover { color: var(--primary); }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-left">
+            <a href="index.html" class="nav-logo"><i class="fas fa-layer-group"></i> PEGASUS<span>HUB</span></a>
+        </div>
+        
+        <div class="nav-center">
+            <ul class="nav-links">
+                <li class="nav-item active-path">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-info-circle"></i> About
+                    </a>
+                </li>
+                <li class="nav-item active-path">
+                    <a href="training.html" class="nav-link">
+                        <i class="fas fa-graduation-cap"></i> Academy
+                    </a>
+                </li>
+                <li class="nav-item active-path">
+                    <a href="registry.html" class="nav-link active">
+                        <i class="fas fa-book-atlas"></i> Examples
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="deployment.html" class="nav-link">
+                        <i class="fas fa-rocket"></i> Build & Run
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="deployment.html#contribute" class="nav-link">
+                        <i class="fas fa-code-pull-request"></i> Contribute
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-right">
+            <a href="https://github.com/pegasus-isi" target="_blank" style="color: var(--text-muted); font-size: 1.2rem; transition: 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'"><i class="fab fa-github"></i></a>
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container" style="padding-top: 60px;">
+        <section class="about-card">
+            <span class="topic-badge"><i class="fas fa-bullseye"></i> Goal of the Registry</span>
+            <h2>Community-Driven Blueprints</h2>
+            <p class="lead" style="margin-bottom: 0;">
+                The <b>Scientific Registry</b> is a centralized repository of production-ready workflows contributed by researchers around the world. Instead of starting from scratch, you can search for a blueprint that matches your domain—whether it's machine learning, bioinformatics, or astrophysics—and adapt it to fit your own computational needs.
+            </p>
+        </section>
+
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" id="searchBar" placeholder="Search for genomics, astronomy, AI..." onkeyup="filterGrid()">
+        </div>
+    </div>
+
+    <div class="grid" id="scientific-grid"></div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#">Documentation</a>
+            <a href="#">API</a>
+            <a href="#">Privacy</a>
+            <a href="https://pegasus.isi.edu">Pegasus WMS</a>
+        </div>
+        <p>&copy; 2026 PegasusHub Registry. Maintained by the ISI Science Automation Technologies.</p>
+    </footer>
+
+    <script>
+        const REPO = 'swarmourr/Pegasus-Hub';
+        const RAW  = 'https://raw.githubusercontent.com/' + REPO + '/refs/heads/main/';
+        const API  = 'https://api.github.com/repos/' + REPO + '/contents';
+
+        const grid = document.getElementById('scientific-grid');
+        let allWorkflows = [];
+
+        function parseYaml(raw) {
+            const parts = raw.split('---');
+            if (parts.length < 3) return null;
+            const meta = {};
+            parts[1].trim().split('\n').forEach(l => {
+                const [k, ...v] = l.split(':');
+                if (k && v.length) meta[k.trim().toLowerCase()] = v.join(':').trim().replace(/['"]/g, '');
+            });
+            // get first paragraph of description as fallback desc
+            const body = parts.slice(2).join('---');
+            const descMatch = body.match(/##\s*Description\s*\n+([\s\S]*?)(\n#|\n\n\n|$)/i);
+            meta._desc = descMatch ? descMatch[1].replace(/[*_`]/g, '').trim().split('\n')[0] : '';
+            return meta;
+        }
+
+        function renderWorkflows(data) {
+            grid.innerHTML = '';
+            if (!data.length) {
+                grid.innerHTML = '<p style="color:var(--text-muted);padding:40px;grid-column:1/-1;text-align:center;">No workflows found.</p>';
+                return;
+            }
+            data.forEach((w, i) => {
+                const topic = w.topic || 'Workflow';
+                const name  = w.name  || w._id;
+                const desc  = w._desc || w.description || '';
+                const date  = w.last_verified || '';
+                grid.innerHTML += `
+                    <div class="card" onclick="location.href='details.html?id=${w._id}'" style="animation-delay:${i*0.07}s">
+                        <div class="card-top">
+                            <span class="topic-badge" style="font-size:0.7rem;font-weight:800;color:var(--primary);background:var(--primary-glow);padding:6px 12px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;">${topic}</span>
+                            <i class="fas fa-book-atlas card-icon"></i>
+                        </div>
+                        <h3>${name}</h3>
+                        <p>${desc}</p>
+                        <div class="card-footer">
+                            <span>${date}</span>
+                            <i class="fas fa-arrow-right arrow-btn"></i>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function filterGrid() {
+            const q = document.getElementById('searchBar').value.toLowerCase();
+            renderWorkflows(allWorkflows.filter(w =>
+                (w.name||'').toLowerCase().includes(q) ||
+                (w.topic||'').toLowerCase().includes(q) ||
+                (w._desc||'').toLowerCase().includes(q)
+            ));
+        }
+
+        // --- LOAD FROM GITHUB ---
+        async function loadFromGitHub() {
+            grid.innerHTML = '<p style="color:var(--text-muted);padding:40px;grid-column:1/-1;text-align:center;"><i class="fas fa-spinner fa-spin"></i> Loading workflows from GitHub...</p>';
+            try {
+                const res  = await fetch(API);
+                const files = await res.json();
+                const mds  = files.filter(f => f.name.endsWith('.md') && f.type === 'file');
+
+                const results = await Promise.all(mds.map(async f => {
+                    try {
+                        const r   = await fetch(RAW + f.name);
+                        const raw = await r.text();
+                        const meta = parseYaml(raw);
+                        if (!meta) return null;
+                        meta._id = f.name.replace('.md', '');
+                        return meta;
+                    } catch { return null; }
+                }));
+
+                allWorkflows = results.filter(Boolean);
+                renderWorkflows(allWorkflows);
+            } catch (e) {
+                grid.innerHTML = '<p style="color:var(--text-muted);padding:40px;grid-column:1/-1;text-align:center;">Could not load workflows. Check your connection.</p>';
+            }
+        }
+
+        loadFromGitHub();
+
+        // --- THEME LOGIC ---
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.querySelector('.theme-toggle i');
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                localStorage.setItem('theme', 'light');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                localStorage.setItem('theme', 'dark');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+
+        // Init Theme
+        (function initTheme() {
+            const saved = localStorage.getItem('theme');
+            const icon = document.querySelector('.theme-toggle i');
+            if (saved === 'light') {
+                document.body.classList.add('light-mode');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        })();
+    </script>
+</body>
+</html>
